@@ -10,25 +10,28 @@ val kindProjectorV = "0.11.0"
 val betterMonadicForV = "0.3.1"
 
 // Projects
-lazy val `cosmos4s` = project.in(file("."))
+lazy val `cosmos4s` = project
+  .in(file("."))
   .disablePlugins(MimaPlugin)
   .enablePlugins(NoPublishPlugin)
   .aggregate(core)
 
-lazy val core = project.in(file("core"))
+lazy val core = project
+  .in(file("core"))
   .settings(commonSettings)
   .settings(
     name := "cosmos4s"
   )
 
-lazy val site = project.in(file("site"))
+lazy val site = project
+  .in(file("site"))
   .disablePlugins(MimaPlugin)
   .enablePlugins(MicrositesPlugin)
   .enablePlugins(MdocPlugin)
   .enablePlugins(NoPublishPlugin)
   .settings(commonSettings)
   .dependsOn(core)
-  .settings{
+  .settings {
     import microsites._
     Seq(
       micrositeName := "cosmos4s",
@@ -62,8 +65,14 @@ lazy val site = project.in(file("site"))
       micrositePushSiteWith := GitHub4s,
       micrositeGithubToken := sys.env.get("GITHUB_TOKEN"),
       micrositeExtraMdFiles := Map(
-          file("CODE_OF_CONDUCT.md")  -> ExtraMdFileConfig("code-of-conduct.md",   "page", Map("title" -> "code of conduct",   "section" -> "code of conduct",   "position" -> "100")),
-          file("LICENSE")             -> ExtraMdFileConfig("license.md",   "page", Map("title" -> "license",   "section" -> "license",   "position" -> "101"))
+        file("CODE_OF_CONDUCT.md") -> ExtraMdFileConfig(
+          "code-of-conduct.md",
+          "page",
+          Map("title" -> "code of conduct", "section" -> "code of conduct", "position" -> "100")),
+        file("LICENSE") -> ExtraMdFileConfig(
+          "license.md",
+          "page",
+          Map("title" -> "license", "section" -> "license", "position" -> "101"))
       )
     )
   }
@@ -71,42 +80,44 @@ lazy val site = project.in(file("site"))
 // General Settings
 lazy val commonSettings = Seq(
   scalaVersion := "2.13.1",
-  crossScalaVersions := Seq(scalaVersion.value, "2.12.13"),
-
-  addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
-  addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % betterMonadicForV),
-
+  crossScalaVersions := Seq(scalaVersion.value, "2.12.11"),
+  addCompilerPlugin(
+    ("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)),
+  addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
-    "com.azure"                   % "azure-cosmos"      % "4.0.1-beta.2",
-
-    "org.typelevel"               %% "cats-core"                  % catsV,
-    "org.typelevel"               %% "cats-effect"                % catsEffectV,
-
-    "co.fs2"                      %% "fs2-reactive-streams"       % fs2V,
-
-    "io.circe"                    %% "circe-core"                 % circeV,
-    "io.circe"                    %% "circe-parser"               % circeV,
-    "io.circe"                    %% "circe-jackson210"           % "0.13.0",
-
-    "org.specs2"                  %% "specs2-core"                % specs2V       % Test,
-    "org.specs2"                  %% "specs2-scalacheck"          % specs2V       % Test
+    "com.azure" % "azure-cosmos" % "4.0.1-beta.2",
+    "org.typelevel" %% "cats-core" % catsV,
+    "org.typelevel" %% "cats-effect" % catsEffectV,
+    "co.fs2" %% "fs2-reactive-streams" % fs2V,
+    "io.circe" %% "circe-core" % circeV,
+    "io.circe" %% "circe-parser" % circeV,
+    "io.circe" %% "circe-jackson210" % "0.13.0",
+    "org.specs2" %% "specs2-core" % specs2V % Test,
+    "org.specs2" %% "specs2-scalacheck" % specs2V % Test
   )
 )
 
 // General Settings
-inThisBuild(List(
-  organization := "com.banno",
-  developers := List(
-    Developer("ChristopherDavenport", "Christopher Davenport", "chris@christopherdavenport.tech", url("https://github.com/ChristopherDavenport"))
-  ),
-
-  homepage := Some(url("https://github.com/Banno/cosmos4s")),
-  licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-
-  pomIncludeRepository := { _ => false},
-  scalacOptions in (Compile, doc) ++= Seq(
+inThisBuild(
+  List(
+    organization := "com.banno",
+    developers := List(
+      Developer(
+        "ChristopherDavenport",
+        "Christopher Davenport",
+        "chris@christopherdavenport.tech",
+        url("https://github.com/ChristopherDavenport"))
+    ),
+    homepage := Some(url("https://github.com/Banno/cosmos4s")),
+    organizationName := "Jack Henry & Associates, Inc.®",
+    startYear := Some(2020),
+    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+    pomIncludeRepository := { _ => false },
+    scalacOptions in (Compile, doc) ++= Seq(
       "-groups",
-      "-sourcepath", (baseDirectory in LocalRootProject).value.getAbsolutePath,
-      "-doc-source-url", "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
-  )
-))
+      "-sourcepath",
+      (baseDirectory in LocalRootProject).value.getAbsolutePath,
+      "-doc-source-url",
+      "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
+    )
+  ))
