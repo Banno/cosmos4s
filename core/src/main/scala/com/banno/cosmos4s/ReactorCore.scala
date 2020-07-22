@@ -24,7 +24,7 @@ import reactor.core.publisher.Mono
 import fs2._
 import fs2.interop.reactivestreams._
 
-private[cosmos4s] object ReactorCore {
+object ReactorCore {
   def monoToEffectOpt[F[_]: ConcurrentEffect: ContextShift, A](m: F[Mono[A]]): F[Option[A]] =
     Stream
       .eval(m)
