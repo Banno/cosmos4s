@@ -1,15 +1,12 @@
 val catsV = "2.1.1"
-val catsEffectV = "2.1.3"
-
-val fs2V = "2.4.1"
-
-val circeV = "0.12.3"
-val specs2V = "4.9.4"
-
+val catsEffectV = "2.1.4"
+val fs2V = "2.4.4"
+val circeV = "0.13.0"
+val specs2V = "4.10.3"
+// compiler plugins
 val kindProjectorV = "0.11.0"
 val betterMonadicForV = "0.3.1"
 
-// Projects
 lazy val `cosmos4s` = project
   .in(file("."))
   .disablePlugins(MimaPlugin)
@@ -79,21 +76,21 @@ lazy val site = project
 
 // General Settings
 lazy val commonSettings = Seq(
-  scalaVersion := "2.13.1",
-  crossScalaVersions := Seq(scalaVersion.value, "2.12.11"),
+  scalaVersion := "2.13.3",
+  crossScalaVersions := Seq(scalaVersion.value, "2.12.12"),
   addCompilerPlugin(
     ("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
-    "com.azure" % "azure-cosmos" % "4.0.1-beta.2",
-    "org.typelevel" %% "cats-core" % catsV,
-    "org.typelevel" %% "cats-effect" % catsEffectV,
-    "co.fs2" %% "fs2-reactive-streams" % fs2V,
-    "io.circe" %% "circe-core" % circeV,
-    "io.circe" %% "circe-parser" % circeV,
-    "io.circe" %% "circe-jackson210" % "0.13.0",
-    "org.specs2" %% "specs2-core" % specs2V % Test,
-    "org.specs2" %% "specs2-scalacheck" % specs2V % Test
+    "com.azure"      % "azure-cosmos"         % "4.3.2-beta.2",
+    "org.typelevel" %% "cats-core"            % catsV,
+    "org.typelevel" %% "cats-effect"          % catsEffectV,
+    "co.fs2"        %% "fs2-reactive-streams" % fs2V,
+    "io.circe"      %% "circe-core"           % circeV,
+    "io.circe"      %% "circe-parser"         % circeV,
+    "io.circe"      %% "circe-jackson210"     % "0.13.0",
+    "org.specs2"    %% "specs2-core"          % specs2V % Test,
+    "org.specs2"    %% "specs2-scalacheck"    % specs2V % Test
   )
 )
 

@@ -21,7 +21,7 @@ import cats.effect._
 import cats.effect.implicits._
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import fs2._
+import fs2.Stream
 import fs2.interop.reactivestreams._
 
 object ReactorCore {
@@ -39,6 +39,7 @@ object ReactorCore {
         Sync[F].raiseError[A](new Throwable("Mono to Effect Conversion failed to produce value"))) {
         Sync[F].pure
       })
+
   def fluxToStream[F[_]: ConcurrentEffect: ContextShift, A](m: F[Flux[A]]): fs2.Stream[F, A] =
     Stream
       .eval(m)
