@@ -20,8 +20,8 @@ import com.azure.cosmos.models.CosmosQueryRequestOptions
 import cats.implicits._
 
 final class QueryOptions private (
-    val maxDegreeOfParallelism: Option[Int],
-    val maxBufferedItemCount: Option[Int])
+    maxDegreeOfParallelism: Option[Int],
+    maxBufferedItemCount: Option[Int])
     extends Serializable {
 
   private[this] def copy(
@@ -35,12 +35,15 @@ final class QueryOptions private (
   def withMaxBufferedItemCount(value: Option[Int]): QueryOptions =
     this.copy(maxBufferedItemCount = value)
 
+  private val getMaxDegreeOfParallelism: Option[Int] = maxDegreeOfParallelism
+  private val getMaxBufferedItemCount: Option[Int] = maxBufferedItemCount
+
   override def toString: String = s"QueryOptions($maxDegreeOfParallelism, $maxBufferedItemCount)"
 
   override def equals(o: Any): Boolean =
     o match {
       case x: QueryOptions =>
-        (this.maxDegreeOfParallelism == x.maxDegreeOfParallelism) && (this.maxBufferedItemCount == x.maxBufferedItemCount)
+        (this.maxDegreeOfParallelism == x.getMaxDegreeOfParallelism) && (this.maxBufferedItemCount == x.getMaxBufferedItemCount)
       case _ => false
     }
 
