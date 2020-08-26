@@ -71,7 +71,7 @@ object RawCosmosContainer {
           ReactorCore.fluxToStream(
             Sync[F].delay(
               container
-                .queryItems(query, options.toCosmos, classOf[JsonNode])
+                .queryItems(query, options.build(), classOf[JsonNode])
                 .byPage()
             )
           )

@@ -96,7 +96,7 @@ object IndexedCosmosContainer {
               container
                 .queryItems(
                   query,
-                  options.toCosmos.setPartitionKey(new PartitionKey(partitionKey)),
+                  options.build().setPartitionKey(new PartitionKey(partitionKey)),
                   classOf[JsonNode])
                 .byPage()
             )

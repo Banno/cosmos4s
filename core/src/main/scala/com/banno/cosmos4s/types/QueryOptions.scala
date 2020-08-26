@@ -21,29 +21,40 @@ import cats.implicits._
 
 final class QueryOptions private (
     val maxDegreeOfParallelism: Option[Int],
-    val maxBufferedItemCount: Option[Int]
-)
+    val maxBufferedItemCount: Option[Int])
+    extends Serializable {
+
+  private[this] def copy(
+      maxDegreeOfParallelism: Option[Int] = maxDegreeOfParallelism,
+      maxBufferedItemCount: Option[Int] = maxBufferedItemCount): QueryOptions =
+    new QueryOptions(maxDegreeOfParallelism, maxBufferedItemCount)
+
+  def withMaxDegreeOfParallelism(value: Option[Int]): QueryOptions =
+    this.copy(maxDegreeOfParallelism = value)
+
+  def withMaxBufferedItemCount(value: Option[Int]): QueryOptions =
+    this.copy(maxBufferedItemCount = value)
+
+  override def toString: String = s"QueryOptions($maxDegreeOfParallelism, $maxBufferedItemCount)"
+
+  override def equals(o: Any): Boolean =
+    o match {
+      case x: QueryOptions =>
+        (this.maxDegreeOfParallelism == x.maxDegreeOfParallelism) && (this.maxBufferedItemCount == x.maxBufferedItemCount)
+      case _ => false
+    }
+
+  override def hashCode: Int =
+    37 * (37 * (17 + maxDegreeOfParallelism.##) + maxBufferedItemCount.##)
+
+  private[cosmos4s] def build(): CosmosQueryRequestOptions = {
+    val cosmosQueryOptions = new CosmosQueryRequestOptions()
+    maxDegreeOfParallelism.foreach(cosmosQueryOptions.setMaxDegreeOfParallelism)
+    maxBufferedItemCount.foreach(cosmosQueryOptions.setMaxBufferedItemCount)
+    cosmosQueryOptions
+  }
+}
 
 object QueryOptions {
-
   val default: QueryOptions = new QueryOptions(None, None)
-
-  implicit class QueryOptionSyntax(qo: QueryOptions) {
-    def withMaxDegreeOfParallelism(value: Int): QueryOptions =
-      new QueryOptions(
-        maxDegreeOfParallelism = value.some,
-        maxBufferedItemCount = qo.maxBufferedItemCount)
-
-    def withMaxBufferedItemCount(value: Int): QueryOptions =
-      new QueryOptions(
-        maxDegreeOfParallelism = qo.maxDegreeOfParallelism,
-        maxBufferedItemCount = value.some)
-
-    private[cosmos4s] def toCosmos: CosmosQueryRequestOptions = {
-      val cosmosQueryOptions = new CosmosQueryRequestOptions()
-      qo.maxDegreeOfParallelism.foreach(cosmosQueryOptions.setMaxDegreeOfParallelism)
-      qo.maxBufferedItemCount.foreach(cosmosQueryOptions.setMaxBufferedItemCount)
-      cosmosQueryOptions
-    }
-  }
 }
