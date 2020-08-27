@@ -110,14 +110,16 @@ object IndexedCosmosContainer {
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
       cats.data
         .OptionT(
-          ReactorCore.monoToEffectOpt(
-            Sync[F].delay(
-              container.readItem(
-                id,
-                new PartitionKey(partitionKey),
-                new CosmosItemRequestOptions(),
-                classOf[JsonNode])
-            )).recoverWith{case _: NotFoundException => Sync[F].pure(None)}
+          ReactorCore
+            .monoToEffectOpt(
+              Sync[F].delay(
+                container.readItem(
+                  id,
+                  new PartitionKey(partitionKey),
+                  new CosmosItemRequestOptions(),
+                  classOf[JsonNode])
+              ))
+            .recoverWith { case _: NotFoundException => Sync[F].pure(None) }
         )
         .subflatMap(response => Option(response.getItem()))
         .map(jacksonToCirce(_))
