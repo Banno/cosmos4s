@@ -26,6 +26,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import fs2.Stream
 import io.circe._
 import io.circe.jackson._
+import com.azure.cosmos.implementation.NotFoundException
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
@@ -109,14 +110,16 @@ object IndexedCosmosContainer {
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
       cats.data
         .OptionT(
-          ReactorCore.monoToEffectOpt(
-            Sync[F].delay(
-              container.readItem(
-                id,
-                new PartitionKey(partitionKey),
-                new CosmosItemRequestOptions(),
-                classOf[JsonNode])
-            ))
+          ReactorCore
+            .monoToEffectOpt(
+              Sync[F].delay(
+                container.readItem(
+                  id,
+                  new PartitionKey(partitionKey),
+                  new CosmosItemRequestOptions(),
+                  classOf[JsonNode])
+              ))
+            .recoverWith { case _: NotFoundException => Sync[F].pure(None) }
         )
         .subflatMap(response => Option(response.getItem()))
         .map(jacksonToCirce(_))
