@@ -103,7 +103,26 @@ inThisBuild(
         "ChristopherDavenport",
         "Christopher Davenport",
         "chris@christopherdavenport.tech",
-        url("https://github.com/ChristopherDavenport"))
+        url("https://github.com/ChristopherDavenport")
+      ),
+      Developer(
+        "JesusMtnez",
+        "Jesús Martínez",
+        "jesusmartinez93@gmail.com",
+        url("https://github.com/JesusMtnez")
+      ),
+      Developer(
+        "BeniVF",
+        "Benigno Villa Fernández",
+        "beni.villa@gmail.com",
+        url("https://github.com/BeniVF")
+      ),
+      Developer(
+        "Ryan-Banno",
+        "Ryan D",
+        "ryan.delap@banno.com",
+        url("https://github.com/Ryan-Banno")
+      )
     ),
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
     organizationName := "Jack Henry & Associates, Inc.®",
