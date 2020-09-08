@@ -16,13 +16,13 @@
 
 package com.banno.cosmos4s
 
-import cats.implicits._
 import cats.effect._
 import cats.effect.implicits._
+import cats.syntax.all._
+import fs2.interop.reactivestreams._
+import fs2.Stream
 import reactor.core.publisher.Flux
 import reactor.core.publisher.Mono
-import fs2.Stream
-import fs2.interop.reactivestreams._
 
 object ReactorCore {
   def monoToEffectOpt[F[_]: ConcurrentEffect: ContextShift, A](m: F[Mono[A]]): F[Option[A]] =

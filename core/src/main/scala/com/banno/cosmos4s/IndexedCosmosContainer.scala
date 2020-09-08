@@ -18,15 +18,15 @@ package com.banno.cosmos4s
 
 import cats._
 import cats.effect._
-import cats.implicits._
+import cats.syntax.all._
 import com.azure.cosmos._
+import com.azure.cosmos.implementation.NotFoundException
 import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.Stream
 import io.circe._
 import io.circe.jackson._
-import com.azure.cosmos.implementation.NotFoundException
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
