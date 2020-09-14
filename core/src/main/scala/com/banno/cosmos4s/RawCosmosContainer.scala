@@ -18,7 +18,7 @@ package com.banno.cosmos4s
 
 import cats._
 import cats.effect._
-import cats.implicits._
+import cats.syntax.all._
 import com.azure.cosmos._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode

@@ -16,8 +16,8 @@
 
 package com.banno.cosmos4s.types
 
+import cats.syntax.all._
 import com.azure.cosmos.models.CosmosQueryRequestOptions
-import cats.implicits._
 
 final class QueryOptions private (
     maxDegreeOfParallelism: Option[Int],
