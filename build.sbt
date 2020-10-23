@@ -77,18 +77,21 @@ lazy val site = project
 // General Settings
 lazy val commonSettings = Seq(
   crossScalaVersions := Seq(scalaVersion.value, "2.12.12"),
-  addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
+  addCompilerPlugin(
+    ("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
-    "com.azure"      % "azure-cosmos"         % "4.7.0",
-    "org.typelevel" %% "cats-core"            % catsV,
-    "org.typelevel" %% "cats-effect"          % catsEffectV,
-    "co.fs2"        %% "fs2-reactive-streams" % fs2V,
-    "io.circe"      %% "circe-core"           % circeV,
-    "io.circe"      %% "circe-parser"         % circeV,
-    "io.circe"      %% "circe-jackson210"     % "0.13.0",
-    "org.specs2"    %% "specs2-core"          % specs2V % Test,
-    "org.specs2"    %% "specs2-scalacheck"    % specs2V % Test
+    "com.azure"           % "azure-cosmos"            % "4.7.1",
+    "com.microsoft.azure" % "azure-documentdb"        % "2.6.0",
+    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.11.0",
+    "org.typelevel"      %% "cats-core"               % catsV,
+    "org.typelevel"      %% "cats-effect"             % catsEffectV,
+    "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
+    "io.circe"           %% "circe-core"              % circeV,
+    "io.circe"           %% "circe-parser"            % circeV,
+    "io.circe"           %% "circe-jackson210"        % "0.13.0",
+    "org.specs2"         %% "specs2-core"             % specs2V % Test,
+    "org.specs2"         %% "specs2-scalacheck"       % specs2V % Test
   )
 )
 
