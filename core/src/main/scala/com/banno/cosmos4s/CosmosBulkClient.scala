@@ -23,15 +23,17 @@ import io.circe.Json
 import com.microsoft.azure.documentdb.{DocumentClient, PartitionKeyDefinition}
 import com.microsoft.azure.documentdb.bulkexecutor.{BulkImportResponse, DocumentBulkExecutor}
 
-trait BulkOps[F[_], V] {
+trait CosmosBulkClient[F[_], V] {
   def insert(value: List[V]): F[Unit]
   def upsert(value: List[V]): F[Unit]
 
-  def mapK[G[_]](fk: F ~> G): BulkOps[G, V] = new BulkOps.MapKBulkOps[F, G, V](this, fk)
-  def contramapValue[A](f: A => V): BulkOps[F, A] = new BulkOps.ContramapValue[F, A, V](this, f)
+  def mapK[G[_]](fk: F ~> G): CosmosBulkClient[G, V] =
+    new CosmosBulkClient.MapKCosmosBulkClient[F, G, V](this, fk)
+  def contramapValue[A](f: A => V): CosmosBulkClient[F, A] =
+    new CosmosBulkClient.ContramapValue[F, A, V](this, f)
 }
 
-object BulkOps {
+object CosmosBulkClient {
 
   /**
    * https://docs.microsoft.com/en-us/azure/cosmos-db/bulk-executor-java
@@ -45,9 +47,9 @@ object BulkOps {
       partitionKey: PartitionKeyDefinition,
       offerThroughput: Int,
       maxConcurrencyPerPartitionRange: Int
-  ): Resource[F, BulkOps[F, Json]] =
+  ): Resource[F, CosmosBulkClient[F, Json]] =
     Resource
-      .liftF(
+      .fromAutoCloseable(
         Sync[F]
           .delay {
             DocumentBulkExecutor
@@ -61,7 +63,7 @@ object BulkOps {
   private class Impl[F[_]: Sync](
       executor: DocumentBulkExecutor,
       maxConcurrencyPerPartitionRange: Int
-  ) extends BulkOps[F, Json] {
+  ) extends CosmosBulkClient[F, Json] {
     import scala.collection.JavaConverters._
 
     def insert(value: List[Json]): F[Unit] =
@@ -74,7 +76,7 @@ object BulkOps {
         if (r.getNumberOfDocumentsImported() == value.size)
           ().pure[F]
         else
-          BulkInsertFailure(r).raiseError
+          CosmosBulkInsertFailure(r).raiseError
       }
 
     def upsert(value: List[Json]): F[Unit] =
@@ -84,27 +86,29 @@ object BulkOps {
           if (r.getNumberOfDocumentsImported() == value.size)
             ().pure[F]
           else
-            BulkUpsertFailure(r).raiseError
+            CosmosBulkUpsertFailure(r).raiseError
       }
 
   }
 
-  sealed trait BulkOpsFailure extends RuntimeException with Product with Serializable
-  final case class BulkInsertFailure(response: BulkImportResponse) extends BulkOpsFailure
-  final case class BulkUpsertFailure(response: BulkImportResponse) extends BulkOpsFailure
+  sealed trait CosmosBulkClientFailure extends RuntimeException with Product with Serializable
+  final case class CosmosBulkInsertFailure(response: BulkImportResponse)
+      extends CosmosBulkClientFailure
+  final case class CosmosBulkUpsertFailure(response: BulkImportResponse)
+      extends CosmosBulkClientFailure
 
-  private class MapKBulkOps[F[_], G[_], V](
-      base: BulkOps[F, V],
+  private class MapKCosmosBulkClient[F[_], G[_], V](
+      base: CosmosBulkClient[F, V],
       fk: F ~> G
-  ) extends BulkOps[G, V] {
+  ) extends CosmosBulkClient[G, V] {
     def insert(value: List[V]): G[Unit] = fk(base.insert(value))
     def upsert(value: List[V]): G[Unit] = fk(base.upsert(value))
   }
 
   private class ContramapValue[F[_], V2, V](
-      base: BulkOps[F, V],
+      base: CosmosBulkClient[F, V],
       contra: V2 => V
-  ) extends BulkOps[F, V2] {
+  ) extends CosmosBulkClient[F, V2] {
     def insert(value: List[V2]): F[Unit] = base.insert(value.map(contra))
     def upsert(value: List[V2]): F[Unit] = base.upsert(value.map(contra))
   }
