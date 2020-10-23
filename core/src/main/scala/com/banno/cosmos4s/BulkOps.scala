@@ -62,16 +62,13 @@ object BulkOps {
       }
 
     def upsert(value: List[Json]): F[Unit] =
-      Sync[F].delay(
-        executor.importAll(
-          value.map(_.noSpaces).asJava,
-          true,
-          true,
-          maxConcurrencyPerPartitionRange)) >>= { r =>
-        if (r.getNumberOfDocumentsImported() == value.size)
-          ().pure[F]
-        else
-          BulkUpsertFailure(r).raiseError
+      Sync[F].delay(executor
+        .importAll(value.map(_.noSpaces).asJava, true, true, maxConcurrencyPerPartitionRange)) >>= {
+        r =>
+          if (r.getNumberOfDocumentsImported() == value.size)
+            ().pure[F]
+          else
+            BulkUpsertFailure(r).raiseError
       }
 
   }
