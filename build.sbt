@@ -77,8 +77,7 @@ lazy val site = project
 // General Settings
 lazy val commonSettings = Seq(
   crossScalaVersions := Seq(scalaVersion.value, "2.12.12"),
-  addCompilerPlugin(
-    ("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)),
+  addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.7.1",
