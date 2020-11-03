@@ -80,7 +80,7 @@ lazy val commonSettings = Seq(
   addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.7.1",
+    "com.azure"           % "azure-cosmos"            % "4.8.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.0",
     "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.11.0",
     "org.typelevel"      %% "cats-core"               % catsV,
