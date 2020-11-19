@@ -97,7 +97,7 @@ lazy val commonSettings = Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "2.13.4",
+    scalaVersion := "2.13.3",
     organization := "com.banno",
     developers := List(
       Developer(
