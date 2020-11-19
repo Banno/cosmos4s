@@ -23,12 +23,12 @@ jobs:
         with:
           java-version: ${{ matrix.java }}
       - name: Cache Coursier
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.cache/coursier
           key: sbt-coursier-cache
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}
@@ -51,14 +51,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v5
+      - uses: olafurpg/setup-scala@v10
       - name: Cache Coursier
         uses: actions/cache@v1
         with:
           path: ~/.cache/coursier
           key: sbt-coursier-cache
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}
