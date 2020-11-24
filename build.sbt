@@ -4,7 +4,7 @@ val fs2V = "2.4.4"
 val circeV = "0.13.0"
 val specs2V = "4.10.5"
 // compiler plugins
-val kindProjectorV = "0.11.0"
+val kindProjectorV = "0.11.1"
 val betterMonadicForV = "0.3.1"
 
 lazy val `cosmos4s` = project
@@ -97,7 +97,7 @@ lazy val commonSettings = Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "2.13.3",
+    scalaVersion := "2.13.4",
     organization := "com.banno",
     developers := List(
       Developer(
