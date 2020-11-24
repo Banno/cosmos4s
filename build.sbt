@@ -4,7 +4,7 @@ val fs2V = "2.4.4"
 val circeV = "0.13.0"
 val specs2V = "4.10.5"
 // compiler plugins
-val kindProjectorV = "0.11.0"
+val kindProjectorV = "0.11.1"
 val betterMonadicForV = "0.3.1"
 
 lazy val `cosmos4s` = project
@@ -82,7 +82,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.8.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.0",
-    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.11.0",
+    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.0",
     "org.typelevel"      %% "cats-core"               % catsV,
     "org.typelevel"      %% "cats-effect"             % catsEffectV,
     "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
@@ -97,7 +97,7 @@ lazy val commonSettings = Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "2.13.3",
+    scalaVersion := "2.13.4",
     organization := "com.banno",
     developers := List(
       Developer(
