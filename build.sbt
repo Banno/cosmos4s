@@ -1,10 +1,10 @@
-val catsV = "2.2.0"
-val catsEffectV = "2.2.0"
-val fs2V = "2.4.4"
+val catsV = "2.3.0"
+val catsEffectV = "2.3.0"
+val fs2V = "2.4.6"
 val circeV = "0.13.0"
 val specs2V = "4.10.5"
 // compiler plugins
-val kindProjectorV = "0.11.1"
+val kindProjectorV = "0.11.2"
 val betterMonadicForV = "0.3.1"
 
 lazy val `cosmos4s` = project
