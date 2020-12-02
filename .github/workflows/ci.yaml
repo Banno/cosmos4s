@@ -11,32 +11,32 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [adopt@1.8, adopt@1.11, adopt@1.14]
-        scala: [2.12.12, 2.13.3]
+        java: [adopt@1.8.0-272, adopt@1.11.0-9, adopt@1.15.0-1]
+        scala: [2.12.12, 2.13.4]
     env:
       SCALA_VERSION: ${{ matrix.scala }}
     steps:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: olafurpg/setup-scala@v7
+      - uses: olafurpg/setup-scala@v10
         with:
           java-version: ${{ matrix.java }}
       - name: Cache Coursier
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.cache/coursier
           key: sbt-coursier-cache
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}
       - name: Check formatting
-        if: startsWith(matrix.scala, '2.12.') && (matrix.java == 'adopt@1.8')
+        if: startsWith(matrix.scala, '2.12.') && (matrix.java == 'adopt@1.8.0-272')
         run: sbt ++$SCALA_VERSION scalafmtCheckAll
       - name: Check copyright headers
-        if: matrix.java == 'adopt@1.8'
+        if: matrix.java == 'adopt@1.8.0-272'
         run: sbt ++$SCALA_VERSION headerCheck
       - name: Compile
         run: sbt ++$SCALA_VERSION test:compile
@@ -51,14 +51,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: olafurpg/setup-scala@v5
+      - uses: olafurpg/setup-scala@v10
       - name: Cache Coursier
         uses: actions/cache@v1
         with:
           path: ~/.cache/coursier
           key: sbt-coursier-cache
       - name: Cache SBT
-        uses: actions/cache@v1
+        uses: actions/cache@v2
         with:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}
