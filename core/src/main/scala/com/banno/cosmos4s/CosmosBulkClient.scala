@@ -67,26 +67,32 @@ object CosmosBulkClient {
     import scala.collection.JavaConverters._
 
     def insert(value: List[Json]): F[Unit] =
-      Sync[F].delay(
-        executor.importAll(
-          value.map(_.noSpaces).asJava,
-          false,
-          true,
-          maxConcurrencyPerPartitionRange)) >>= { r =>
-        if (r.getNumberOfDocumentsImported() == value.size)
-          ().pure[F]
-        else
-          CosmosBulkInsertFailure(r).raiseError
+      Sync[F]
+        .delay(executor
+          .importAll(value.map(_.noSpaces).asJava, false, true, maxConcurrencyPerPartitionRange))
+        .map(Option(_)) >>= {
+        _.fold(NoneResponseCosmosBulkInsertFailure.raiseError[F, Unit]) { r =>
+          if (r.getNumberOfDocumentsImported() == value.size)
+            Applicative[F].unit
+          else
+            CosmosBulkInsertFailure(r).raiseError
+        }
       }
 
     def upsert(value: List[Json]): F[Unit] =
-      Sync[F].delay(executor
-        .importAll(value.map(_.noSpaces).asJava, true, true, maxConcurrencyPerPartitionRange)) >>= {
-        r =>
+      Sync[F]
+        .delay(executor
+          .importAll(value.map(_.noSpaces).asJava, true, true, maxConcurrencyPerPartitionRange))
+        .map(Option(_)) >>= {
+        _.fold(
+          NoneResponseCosmosBulkUpsertFailure.raiseError[F, Unit]
+        ) { r =>
           if (r.getNumberOfDocumentsImported() == value.size)
-            ().pure[F]
+            Applicative[F].unit
           else
-            CosmosBulkUpsertFailure(r).raiseError
+            CosmosBulkUpsertFailure(r).raiseError[F, Unit]
+        }
+
       }
 
   }
@@ -94,8 +100,10 @@ object CosmosBulkClient {
   sealed trait CosmosBulkClientFailure extends RuntimeException with Product with Serializable
   final case class CosmosBulkInsertFailure(response: BulkImportResponse)
       extends CosmosBulkClientFailure
+  final case object NoneResponseCosmosBulkInsertFailure extends CosmosBulkClientFailure
   final case class CosmosBulkUpsertFailure(response: BulkImportResponse)
       extends CosmosBulkClientFailure
+  final case object NoneResponseCosmosBulkUpsertFailure extends CosmosBulkClientFailure
 
   private class MapKCosmosBulkClient[F[_], G[_], V](
       base: CosmosBulkClient[F, V],
