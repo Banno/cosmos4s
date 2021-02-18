@@ -1,10 +1,10 @@
-val catsV = "2.3.1"
-val catsEffectV = "2.3.1"
-val fs2V = "2.5.0"
+val catsV = "2.4.2"
+val catsEffectV = "2.3.3"
+val fs2V = "2.5.1"
 val circeV = "0.13.0"
-val specs2V = "4.10.5"
+val specs2V = "4.10.6"
 // compiler plugins
-val kindProjectorV = "0.11.2"
+val kindProjectorV = "0.11.3"
 val betterMonadicForV = "0.3.1"
 
 lazy val `cosmos4s` = project
@@ -76,7 +76,7 @@ lazy val site = project
 
 // General Settings
 lazy val commonSettings = Seq(
-  crossScalaVersions := Seq(scalaVersion.value, "2.12.12"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.12.13"),
   addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
