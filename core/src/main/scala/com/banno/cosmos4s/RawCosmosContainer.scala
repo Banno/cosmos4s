@@ -76,9 +76,8 @@ object RawCosmosContainer {
             )
           )
         }
-        .flatMap(page => Stream.fromIterator(page.getElements().iterator().asScala))
-        .map(jacksonToCirce(_))
-        .evalMap(_.as[A].liftTo[F])
+        .flatMap(page => Stream.iterable(page.getElements().asScala))
+        .evalMapChunk(jacksonToCirce(_).as[A].liftTo[F])
   }
 
   private class MapKRawCosmosContainer[F[_], G[_], V](

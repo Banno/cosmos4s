@@ -103,9 +103,8 @@ object IndexedCosmosContainer {
             )
           )
         }
-        .flatMap(page => Stream.fromIterator(page.getElements().iterator().asScala))
-        .map(jacksonToCirce(_))
-        .evalMap(_.as[A].liftTo[F])
+        .flatMap(page => Stream.iterable(page.getElements().asScala))
+        .evalMapChunk(jacksonToCirce(_).as[A].liftTo[F])
 
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
       cats.data
