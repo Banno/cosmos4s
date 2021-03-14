@@ -22,7 +22,7 @@ import cats.syntax.all._
 import com.azure.cosmos._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
-import fs2.Stream
+import fs2.{Chunk, Stream}
 import io.circe._
 import io.circe.jackson._
 
@@ -76,8 +76,15 @@ object RawCosmosContainer {
             )
           )
         }
-        .flatMap(page => Stream.iterable(page.getElements().asScala))
-        .evalMapChunk(jacksonToCirce(_).as[A].liftTo[F])
+        .flatMap { page =>
+          val elements = page.getElements()
+          if (elements == null) Stream.empty
+          else
+            Chunk
+              .iterable(elements.asScala)
+              .traverse(jacksonToCirce(_).as[A])
+              .fold(Stream.raiseError[F], Stream.chunk)
+        }
   }
 
   private class MapKRawCosmosContainer[F[_], G[_], V](
