@@ -1,5 +1,5 @@
 val catsV = "2.4.2"
-val catsEffectV = "2.3.3"
+val catsEffectV = "2.4.0"
 val fs2V = "2.5.3"
 val circeV = "0.13.0"
 val specs2V = "4.10.6"
@@ -80,7 +80,7 @@ lazy val commonSettings = Seq(
   addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.12.0",
+    "com.azure"           % "azure-cosmos"            % "4.13.1",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.1",
     "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.0",
     "org.typelevel"      %% "cats-core"               % catsV,
