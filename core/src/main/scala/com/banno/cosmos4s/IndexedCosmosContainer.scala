@@ -26,7 +26,8 @@ import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.{Chunk, Stream}
 import io.circe._
-import io.circe.jackson._
+// import io.circe.jackson._
+
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
@@ -88,7 +89,7 @@ object IndexedCosmosContainer {
         partitionKey: String,
         query: String,
         overrides: QueryOptions => QueryOptions = identity): Stream[F, A] =
-      Stream
+      fs2.Stream
         .eval(createFeedOptionsAlways)
         .map(overrides)
         .flatMap { options =>
@@ -107,10 +108,12 @@ object IndexedCosmosContainer {
           val elements = page.getElements()
           if (elements == null) Stream.empty
           else
-            Chunk
-              .iterable(elements.asScala)
-              .traverse(jacksonToCirce(_).as[A])
-              .fold(Stream.raiseError[F], Stream.chunk)
+            // Chunk
+            //   .iterable(elements.asScala)
+            //   .traverse(jacksonToCirce(_).as[A])
+            //   .fold(Stream.raiseError[F], Stream.chunk)
+
+            ???
         }
 
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
@@ -310,14 +313,14 @@ object IndexedCosmosContainer {
       base.delete(partitionKey, id)
   }
 
-  implicit def partitionKey[F[_], I, V] =
+  implicit def partitionKey[F[_], I, V]: Contravariant[IndexedCosmosContainer[F, *, I, V]] =
     new Contravariant[IndexedCosmosContainer[F, *, I, V]] {
       def contramap[A, B](fa: IndexedCosmosContainer[F, A, I, V])(
           f: B => A): IndexedCosmosContainer[F, B, I, V] =
         fa.contramapPartitionKey(f)
     }
 
-  implicit def id[F[_], K, V] =
+  implicit def id[F[_], K, V] : Contravariant[IndexedCosmosContainer[F, K, *, V]]=
     new Contravariant[IndexedCosmosContainer[F, K, *, V]] {
       def contramap[A, B](fa: IndexedCosmosContainer[F, K, A, V])(
           f: B => A): IndexedCosmosContainer[F, K, B, V] =

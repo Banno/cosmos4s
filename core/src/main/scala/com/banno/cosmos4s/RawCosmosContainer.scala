@@ -24,7 +24,7 @@ import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.{Chunk, Stream}
 import io.circe._
-import io.circe.jackson._
+// import io.circe.jackson._
 
 trait RawCosmosContainer[F[_], V] {
   def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, V]
@@ -64,7 +64,7 @@ object RawCosmosContainer {
     def queryCustomRaw[A: Decoder](
         query: String,
         overrides: QueryOptions => QueryOptions = identity): Stream[F, A] =
-      Stream
+      fs2.Stream
         .eval(createQueryOptionsAlways)
         .map(overrides)
         .flatMap { options =>
