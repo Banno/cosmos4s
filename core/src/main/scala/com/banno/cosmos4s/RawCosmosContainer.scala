@@ -41,12 +41,12 @@ trait RawCosmosContainer[F[_], V] {
 }
 
 object RawCosmosContainer {
-  def impl[F[_]: ConcurrentEffect: ContextShift](
+  def impl[F[_]: Async](
       container: CosmosAsyncContainer,
       createQueryOptions: Option[F[QueryOptions]] = None): RawCosmosContainer[F, Json] =
     new BaseImpl[F](container, createQueryOptions)
 
-  private class BaseImpl[F[_]: ConcurrentEffect: ContextShift](
+  private class BaseImpl[F[_]: Async](
       container: CosmosAsyncContainer,
       createQueryOptions: Option[F[QueryOptions]] = None)
       extends RawCosmosContainer[F, Json] {

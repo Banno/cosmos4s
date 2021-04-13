@@ -59,7 +59,7 @@ trait IndexedCosmosContainer[F[_], K, I, V] {
 
 object IndexedCosmosContainer {
 
-  def impl[F[_]: ConcurrentEffect: ContextShift](
+  def impl[F[_]: Async](
       container: CosmosAsyncContainer,
       createFeedOptions: Option[F[QueryOptions]] = None): IndexedCosmosContainer[
     F,
@@ -68,7 +68,7 @@ object IndexedCosmosContainer {
     Json] =
     new BaseImpl[F](container, createFeedOptions)
 
-  private class BaseImpl[F[_]: ConcurrentEffect: ContextShift](
+  private class BaseImpl[F[_]: Async](
       container: CosmosAsyncContainer,
       createFeedOptions: Option[F[QueryOptions]] = None)
       extends IndexedCosmosContainer[F, String, String, Json] {
