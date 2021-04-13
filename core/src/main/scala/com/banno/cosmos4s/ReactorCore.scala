@@ -17,37 +17,32 @@
 package com.banno.cosmos4s
 
 import cats.effect._
-import cats.effect.implicits._
+import cats.effect.syntax.all._
 import cats.syntax.all._
-import fs2.interop.reactivestreams._
 import fs2.Stream
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import fs2.interop.reactivestreams._
+import reactor.core.publisher._
 
 object ReactorCore {
-  def monoToEffectOpt[F[_]: ConcurrentEffect: ContextShift, A](m: F[Mono[A]]): F[Option[A]] =
+  def monoToEffectOpt[F[_]: Async, A](m: F[Mono[A]]): F[Option[A]] =
     Stream
       .eval(m)
       .flatMap(fromPublisher[F, A])
       .compile
       .last
-      .guarantee(ContextShift[F].shift)
+      .guarantee(Spawn[F].cede)
 
-  def monoToEffect[F[_]: ConcurrentEffect: ContextShift, A](m: F[Mono[A]]): F[A] =
-    monoToEffectOpt(m).flatMap(opt =>
-      opt.fold(
-        Sync[F].raiseError[A](new Throwable("Mono to Effect Conversion failed to produce value"))
-      ) {
-        Sync[F].pure
-      }
+  def monoToEffect[F[_]: Async, A](m: F[Mono[A]]): F[A] =
+    monoToEffectOpt(m).flatMap(
+      _.liftTo[F](
+        new Throwable("Mono to Effect Conversion failed to produce value")
+      )
     )
 
-  def fluxToStream[F[_]: ConcurrentEffect: ContextShift, A](m: F[Flux[A]]): fs2.Stream[F, A] =
+  def fluxToStream[F[_]: Async, A](m: F[Flux[A]]): fs2.Stream[F, A] =
     Stream
       .eval(m)
       .flatMap(fromPublisher[F, A])
       .chunks
-      .flatMap(chunk =>
-        Stream.eval(ContextShift[F].shift).flatMap(_ => Stream.chunk(chunk).covary[F])
-      )
+      .flatMap(chunk => Stream.eval(Spawn[F].cede).flatMap(_ => Stream.chunk(chunk).covary[F]))
 }
