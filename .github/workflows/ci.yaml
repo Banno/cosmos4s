@@ -3,7 +3,7 @@ on: [push, pull_request]
 env:
   CI: true
   CI_SNAPSHOT_RELEASE: +publishSigned
-  SCALA_VERSION: 2.12.13
+  SCALA_VERSION: 2.13.5
 jobs:
   validate:
     name: Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
@@ -33,7 +33,7 @@ jobs:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}
       - name: Check formatting
-        if: startsWith(matrix.scala, '2.12.') && (matrix.java == 'openjdk@1.8')
+        if: startsWith(matrix.scala, '2.13.') && (matrix.java == 'openjdk@1.8')
         run: sbt ++$SCALA_VERSION scalafmtCheckAll
       - name: Check copyright headers
         if: matrix.java == 'openjdk@1.8'
