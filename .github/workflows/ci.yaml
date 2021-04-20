@@ -11,7 +11,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        java: [adopt@1.8, adopt@1.11, adopt@1.16]
+        java: [openjdk@1.8, openjdk@1.11, openjdk@1.16]
         scala: [2.12.13, 2.13.5]
     env:
       SCALA_VERSION: ${{ matrix.scala }}
@@ -33,10 +33,10 @@ jobs:
           path: ~/.sbt
           key: sbt-${{ hashFiles('**/build.sbt') }}
       - name: Check formatting
-        if: startsWith(matrix.scala, '2.12.') && (matrix.java == 'adopt@1.8')
+        if: startsWith(matrix.scala, '2.12.') && (matrix.java == 'openjdk@1.8')
         run: sbt ++$SCALA_VERSION scalafmtCheckAll
       - name: Check copyright headers
-        if: matrix.java == 'adopt@1.8'
+        if: matrix.java == 'openjdk@1.8'
         run: sbt ++$SCALA_VERSION headerCheck
       - name: Compile
         run: sbt ++$SCALA_VERSION test:compile
