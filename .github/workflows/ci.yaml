@@ -1,9 +1,12 @@
 name: CI
-on: [push, pull_request]
+
+on: pull_request
+
 env:
   CI: true
   CI_SNAPSHOT_RELEASE: +publishSigned
   SCALA_VERSION: 2.13.5
+
 jobs:
   validate:
     name: Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
