@@ -16,7 +16,6 @@
 
 package com.banno.cosmos4s.types
 
-import cats.syntax.all._
 import com.azure.cosmos.models.CosmosQueryRequestOptions
 
 final class QueryOptions private (

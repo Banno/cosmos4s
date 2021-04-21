@@ -1,6 +1,6 @@
-val catsV = "2.4.2"
-val catsEffectV = "2.4.0"
-val fs2V = "2.5.3"
+val catsV = "2.6.0"
+val catsEffectV = "2.5.0"
+val fs2V = "2.5.4"
 val circeV = "0.13.0"
 val specs2V = "4.10.6"
 // compiler plugins
@@ -51,7 +51,7 @@ lazy val site = project
         "white-color" -> "#FFFFFF"
       ),
       micrositeCompilingDocsTool := WithMdoc,
-      scalacOptions in Tut --= Seq(
+      Tut / scalacOptions --= Seq(
         "-Xfatal-warnings",
         "-Ywarn-unused-import",
         "-Ywarn-numeric-widen",
@@ -76,11 +76,11 @@ lazy val site = project
 
 // General Settings
 lazy val commonSettings = Seq(
-  crossScalaVersions := Seq(scalaVersion.value, "2.12.12"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.12.13"),
   addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
   addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.13.1",
+    "com.azure"           % "azure-cosmos"            % "4.14.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.1",
     "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.0",
     "org.typelevel"      %% "cats-core"               % catsV,
@@ -94,11 +94,19 @@ lazy val commonSettings = Seq(
   )
 )
 
+ThisBuild / organization := "com.banno"
+Compile / scalacOptions ++= Seq(
+  "-groups",
+  "-sourcepath",
+  (LocalRootProject / baseDirectory).value.getAbsolutePath,
+  "-doc-source-url",
+  "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
+)
+
 // General Settings
 inThisBuild(
   List(
     scalaVersion := "2.13.5",
-    organization := "com.banno",
     developers := List(
       Developer(
         "ChristopherDavenport",
@@ -128,13 +136,5 @@ inThisBuild(
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
     organizationName := "Jack Henry & Associates, Inc.®",
     startYear := Some(2020),
-    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-    pomIncludeRepository := { _ => false },
-    scalacOptions in (Compile, doc) ++= Seq(
-      "-groups",
-      "-sourcepath",
-      (baseDirectory in LocalRootProject).value.getAbsolutePath,
-      "-doc-source-url",
-      "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
-    )
+    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
   ))
