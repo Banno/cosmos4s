@@ -1,9 +1,12 @@
 name: CI
-on: [push, pull_request]
+
+on: pull_request
+
 env:
   CI: true
   CI_SNAPSHOT_RELEASE: +publishSigned
   SCALA_VERSION: 2.13.5
+
 jobs:
   validate:
     name: Scala ${{ matrix.scala }}, Java ${{ matrix.java }}
@@ -19,56 +22,70 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - uses: olafurpg/setup-scala@v10
         with:
           java-version: ${{ matrix.java }}
-      - name: Cache Coursier
+
+      - name: Cache sbt
         uses: actions/cache@v2
         with:
-          path: ~/.cache/coursier
-          key: sbt-coursier-cache
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: ~/.sbt
-          key: sbt-${{ hashFiles('**/build.sbt') }}
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache/v1
+            ~/.cache/coursier/v1
+          key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
+
       - name: Check formatting
-        if: startsWith(matrix.scala, '2.13.') && (matrix.java == 'adopt@1.8')
-        run: sbt ++$SCALA_VERSION scalafmtCheckAll
+        if: startsWith(matrix.scala, '2.13.') && (matrix.java == 'adopt@1.11')
+        run: sbt ++$SCALA_VERSION scalafmtCheckAll scalafmtSbtCheck
+
       - name: Check copyright headers
-        if: matrix.java == 'adopt@1.8'
+        if: matrix.java == 'adopt@1.11'
         run: sbt ++$SCALA_VERSION headerCheck
+
       - name: Compile
         run: sbt ++$SCALA_VERSION test:compile
+
       - name: Check compatibility
         run: sbt ++$SCALA_VERSION mimaReportBinaryIssues
+
       - name: Test
         run: sbt ++$SCALA_VERSION test
+
       - name: Scaladoc
         run: sbt ++$SCALA_VERSION doc
+
   docs:
     name: Doc Site
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+
       - uses: olafurpg/setup-scala@v10
-      - name: Cache Coursier
-        uses: actions/cache@v1
         with:
-          path: ~/.cache/coursier
-          key: sbt-coursier-cache
-      - name: Cache SBT
+          java-version: adopt@1.11
+
+      - name: Cache sbt
         uses: actions/cache@v2
         with:
-          path: ~/.sbt
-          key: sbt-${{ hashFiles('**/build.sbt') }}
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache/v1
+            ~/.cache/coursier/v1
+          key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
+
       - name: Set up Ruby 2.6
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
+
       - name: Install Jekyll
         run: |
           gem install bundler
           bundle install --gemfile=site/Gemfile
+
       - name: Build project site
         run: sbt ++$SCALA_VERSION site/makeMicrosite

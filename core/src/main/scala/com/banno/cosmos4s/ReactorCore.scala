@@ -36,9 +36,11 @@ object ReactorCore {
   def monoToEffect[F[_]: ConcurrentEffect: ContextShift, A](m: F[Mono[A]]): F[A] =
     monoToEffectOpt(m).flatMap(opt =>
       opt.fold(
-        Sync[F].raiseError[A](new Throwable("Mono to Effect Conversion failed to produce value"))) {
+        Sync[F].raiseError[A](new Throwable("Mono to Effect Conversion failed to produce value"))
+      ) {
         Sync[F].pure
-      })
+      }
+    )
 
   def fluxToStream[F[_]: ConcurrentEffect: ContextShift, A](m: F[Flux[A]]): fs2.Stream[F, A] =
     Stream
@@ -46,5 +48,6 @@ object ReactorCore {
       .flatMap(fromPublisher[F, A])
       .chunks
       .flatMap(chunk =>
-        Stream.eval(ContextShift[F].shift).flatMap(_ => Stream.chunk(chunk).covary[F]))
+        Stream.eval(ContextShift[F].shift).flatMap(_ => Stream.chunk(chunk).covary[F])
+      )
 }

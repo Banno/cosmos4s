@@ -68,8 +68,10 @@ object CosmosBulkClient {
 
     def insert(value: List[Json]): F[Unit] =
       Sync[F]
-        .delay(executor
-          .importAll(value.map(_.noSpaces).asJava, false, true, maxConcurrencyPerPartitionRange))
+        .delay(
+          executor
+            .importAll(value.map(_.noSpaces).asJava, false, true, maxConcurrencyPerPartitionRange)
+        )
         .map(Option(_)) >>= {
         _.fold(NoneResponseCosmosBulkInsertFailure.raiseError[F, Unit]) { r =>
           if (r.getNumberOfDocumentsImported() == value.size)
@@ -81,8 +83,10 @@ object CosmosBulkClient {
 
     def upsert(value: List[Json]): F[Unit] =
       Sync[F]
-        .delay(executor
-          .importAll(value.map(_.noSpaces).asJava, true, true, maxConcurrencyPerPartitionRange))
+        .delay(
+          executor
+            .importAll(value.map(_.noSpaces).asJava, true, true, maxConcurrencyPerPartitionRange)
+        )
         .map(Option(_)) >>= {
         _.fold(
           NoneResponseCosmosBulkUpsertFailure.raiseError[F, Unit]
