@@ -18,7 +18,7 @@ jobs:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
 
@@ -37,6 +37,24 @@ jobs:
             ~/.coursier/cache/v1
             ~/.cache/coursier/v1
           key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
+
+      - name: Check formatting
+        run: sbt scalafmtCheckAll scalafmtSbtCheck
+
+      - name: Check copyright headers
+        run: sbt headerCheck
+
+      - name: Compile
+        run: sbt test:compile
+
+      - name: Check compatibility
+        run: sbt mimaReportBinaryIssues
+
+      - name: Test
+        run: sbt test
+
+      - name: Scaladoc
+        run: sbt doc
 
       - name: Publish
         run: sbt ci-release
