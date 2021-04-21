@@ -32,11 +32,13 @@ trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
       partitionKey: K,
       query: String,
-      overrides: QueryOptions => QueryOptions = identity): Stream[F, V]
+      overrides: QueryOptions => QueryOptions = identity
+  ): Stream[F, V]
   def queryCustom[A: Decoder](
       partitionKey: K,
       query: String,
-      overrides: QueryOptions => QueryOptions = identity): Stream[F, A]
+      overrides: QueryOptions => QueryOptions = identity
+  ): Stream[F, A]
   def lookup(partitionKey: K, id: I): F[Option[V]]
   def insert(partitionKey: K, value: V): F[Option[V]]
   def replace(partitionKey: K, id: I, value: V): F[Option[V]]
@@ -50,10 +52,12 @@ trait IndexedCosmosContainer[F[_], K, I, V] {
   def contramapId[A](f: A => I): IndexedCosmosContainer[F, K, A, V] =
     new IndexedCosmosContainer.ContramapId(this, f)
   def semiInvariantFlatMap[A](f: V => F[A])(g: A => V)(implicit
-      F: Monad[F]): IndexedCosmosContainer[F, K, I, A] =
+      F: Monad[F]
+  ): IndexedCosmosContainer[F, K, I, A] =
     new IndexedCosmosContainer.SemiInvariantFlatMap(this, f, g)
   def imapValue[A](f: V => A)(g: A => V)(implicit
-      F: Functor[F]): IndexedCosmosContainer[F, K, I, A] =
+      F: Functor[F]
+  ): IndexedCosmosContainer[F, K, I, A] =
     new IndexedCosmosContainer.ImapValue(this, f, g)
 }
 
@@ -61,17 +65,14 @@ object IndexedCosmosContainer {
 
   def impl[F[_]: ConcurrentEffect: ContextShift](
       container: CosmosAsyncContainer,
-      createFeedOptions: Option[F[QueryOptions]] = None): IndexedCosmosContainer[
-    F,
-    String,
-    String,
-    Json] =
+      createFeedOptions: Option[F[QueryOptions]] = None
+  ): IndexedCosmosContainer[F, String, String, Json] =
     new BaseImpl[F](container, createFeedOptions)
 
   private class BaseImpl[F[_]: ConcurrentEffect: ContextShift](
       container: CosmosAsyncContainer,
-      createFeedOptions: Option[F[QueryOptions]] = None)
-      extends IndexedCosmosContainer[F, String, String, Json] {
+      createFeedOptions: Option[F[QueryOptions]] = None
+  ) extends IndexedCosmosContainer[F, String, String, Json] {
 
     private def createFeedOptionsAlways: F[QueryOptions] =
       createFeedOptions.getOrElse(Sync[F].delay(QueryOptions.default))
@@ -81,13 +82,15 @@ object IndexedCosmosContainer {
     def query(
         partitionKey: String,
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[F, Json] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, Json] =
       queryCustom[Json](partitionKey, query, overrides)
 
     def queryCustom[A: Decoder](
         partitionKey: String,
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[F, A] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, A] =
       Stream
         .eval(createFeedOptionsAlways)
         .map(overrides)
@@ -98,7 +101,8 @@ object IndexedCosmosContainer {
                 .queryItems(
                   query,
                   options.build().setPartitionKey(new PartitionKey(partitionKey)),
-                  classOf[JsonNode])
+                  classOf[JsonNode]
+                )
                 .byPage()
             )
           )
@@ -123,8 +127,10 @@ object IndexedCosmosContainer {
                   id,
                   new PartitionKey(partitionKey),
                   new CosmosItemRequestOptions(),
-                  classOf[JsonNode])
-              ))
+                  classOf[JsonNode]
+                )
+              )
+            )
             .recoverWith { case _: NotFoundException => Sync[F].pure(None) }
         )
         .subflatMap(response => Option(response.getItem()))
@@ -135,8 +141,14 @@ object IndexedCosmosContainer {
       cats.data.OptionT
         .liftF(Sync[F].delay(new CosmosItemRequestOptions()))
         .flatMap(options =>
-          cats.data.OptionT(ReactorCore.monoToEffectOpt(Sync[F].delay(
-            container.createItem(circeToJackson(value), new PartitionKey(partitionKey), options)))))
+          cats.data.OptionT(
+            ReactorCore.monoToEffectOpt(
+              Sync[F].delay(
+                container.createItem(circeToJackson(value), new PartitionKey(partitionKey), options)
+              )
+            )
+          )
+        )
         .subflatMap(response => Option(response.getItem()))
         .map(jacksonToCirce)
         .value
@@ -147,7 +159,8 @@ object IndexedCosmosContainer {
           ReactorCore.monoToEffectOpt(
             Sync[F].delay(
               container.replaceItem(circeToJackson(value), id, new PartitionKey(partitionKey))
-            ))
+            )
+          )
         )
         .subflatMap(response => Option(response.getItem()))
         .map(jacksonToCirce)
@@ -159,7 +172,8 @@ object IndexedCosmosContainer {
           ReactorCore.monoToEffectOpt(
             Sync[F].delay(
               container.upsertItem(circeToJackson(value))
-            ))
+            )
+          )
         )
         .subflatMap(response => Option(response.getItem()))
         .map(jacksonToCirce)
@@ -170,7 +184,8 @@ object IndexedCosmosContainer {
         .monoToEffect(
           Sync[F].delay(
             container.deleteItem(id, new PartitionKey(partitionKey))
-          ))
+          )
+        )
         .void
   }
 
@@ -181,12 +196,14 @@ object IndexedCosmosContainer {
     def query(
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[G, V] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[G, V] =
       base.query(partitionKey, query, overrides).translate(fk)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[G, A] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[G, A] =
       base.queryCustom[A](partitionKey, query, overrides).translate(fk)
     def lookup(partitionKey: K, id: I): G[Option[V]] =
       fk(base.lookup(partitionKey, id))
@@ -207,12 +224,14 @@ object IndexedCosmosContainer {
     def query(
         partitionKey: K2,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, V] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, V] =
       base.query(contra(partitionKey), query, overrides)
     def queryCustom[A: Decoder](
         partitionKey: K2,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, A] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, A] =
       base.queryCustom(contra(partitionKey), query, overrides)
     def lookup(partitionKey: K2, id: I): F[Option[V]] =
       base.lookup(contra(partitionKey), id)
@@ -233,12 +252,14 @@ object IndexedCosmosContainer {
     def query(
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, V] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, V] =
       base.query(partitionKey, query, overrides)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, A] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, A] =
       base.queryCustom(partitionKey, query, overrides)
     def lookup(partitionKey: K, id: I2): F[Option[V]] =
       base.lookup(partitionKey, contra(id))
@@ -260,14 +281,16 @@ object IndexedCosmosContainer {
     def query(
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, V2] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, V2] =
       base
         .query(partitionKey, query, overrides)
         .evalMap(f)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, A] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, A] =
       base.queryCustom(partitionKey, query, overrides)
     def lookup(partitionKey: K, id: I): F[Option[V2]] =
       base.lookup(partitionKey, id).flatMap(_.traverse(f))
@@ -289,14 +312,16 @@ object IndexedCosmosContainer {
     def query(
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, V2] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, V2] =
       base
         .query(partitionKey, query, overrides)
         .map(f)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, A] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, A] =
       base.queryCustom(partitionKey, query, overrides)
     def lookup(partitionKey: K, id: I): F[Option[V2]] =
       base.lookup(partitionKey, id).map(_.map(f))
@@ -313,14 +338,16 @@ object IndexedCosmosContainer {
   implicit def partitionKey[F[_], I, V] =
     new Contravariant[IndexedCosmosContainer[F, *, I, V]] {
       def contramap[A, B](fa: IndexedCosmosContainer[F, A, I, V])(
-          f: B => A): IndexedCosmosContainer[F, B, I, V] =
+          f: B => A
+      ): IndexedCosmosContainer[F, B, I, V] =
         fa.contramapPartitionKey(f)
     }
 
   implicit def id[F[_], K, V] =
     new Contravariant[IndexedCosmosContainer[F, K, *, V]] {
       def contramap[A, B](fa: IndexedCosmosContainer[F, K, A, V])(
-          f: B => A): IndexedCosmosContainer[F, K, B, V] =
+          f: B => A
+      ): IndexedCosmosContainer[F, K, B, V] =
         fa.contramapId(f)
     }
 }

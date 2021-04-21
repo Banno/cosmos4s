@@ -30,7 +30,8 @@ trait RawCosmosContainer[F[_], V] {
   def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, V]
   def queryCustomRaw[A: Decoder](
       query: String,
-      overrides: QueryOptions => QueryOptions = identity): Stream[F, A]
+      overrides: QueryOptions => QueryOptions = identity
+  ): Stream[F, A]
 
   def map[A](f: V => A): RawCosmosContainer[F, A] =
     new RawCosmosContainer.MapValueRawCosmosContainter(this, f)
@@ -43,13 +44,14 @@ trait RawCosmosContainer[F[_], V] {
 object RawCosmosContainer {
   def impl[F[_]: ConcurrentEffect: ContextShift](
       container: CosmosAsyncContainer,
-      createQueryOptions: Option[F[QueryOptions]] = None): RawCosmosContainer[F, Json] =
+      createQueryOptions: Option[F[QueryOptions]] = None
+  ): RawCosmosContainer[F, Json] =
     new BaseImpl[F](container, createQueryOptions)
 
   private class BaseImpl[F[_]: ConcurrentEffect: ContextShift](
       container: CosmosAsyncContainer,
-      createQueryOptions: Option[F[QueryOptions]] = None)
-      extends RawCosmosContainer[F, Json] {
+      createQueryOptions: Option[F[QueryOptions]] = None
+  ) extends RawCosmosContainer[F, Json] {
 
     def createQueryOptionsAlways: F[QueryOptions] =
       createQueryOptions.getOrElse(Sync[F].delay(QueryOptions.default))
@@ -58,12 +60,14 @@ object RawCosmosContainer {
 
     def queryRaw(
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[F, Json] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, Json] =
       queryCustomRaw[Json](query, overrides)
 
     def queryCustomRaw[A: Decoder](
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[F, A] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, A] =
       Stream
         .eval(createQueryOptionsAlways)
         .map(overrides)
@@ -95,7 +99,8 @@ object RawCosmosContainer {
       base.queryRaw(query, overrides).translate(fk)
     def queryCustomRaw[A: Decoder](
         query: String,
-        overrides: QueryOptions => QueryOptions = identity): Stream[G, A] =
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[G, A] =
       base.queryCustomRaw(query, overrides).translate(fk)
   }
 
@@ -108,7 +113,8 @@ object RawCosmosContainer {
 
     def queryCustomRaw[B: Decoder](
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, B] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, B] =
       base.queryCustomRaw(query, overrides)
   }
 
@@ -121,7 +127,8 @@ object RawCosmosContainer {
 
     def queryCustomRaw[B: Decoder](
         query: String,
-        overrides: QueryOptions => QueryOptions): Stream[F, B] =
+        overrides: QueryOptions => QueryOptions
+    ): Stream[F, B] =
       base.queryCustomRaw(query, overrides)
   }
 

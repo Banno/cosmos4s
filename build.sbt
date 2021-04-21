@@ -65,11 +65,13 @@ lazy val site = project
         file("CODE_OF_CONDUCT.md") -> ExtraMdFileConfig(
           "code-of-conduct.md",
           "page",
-          Map("title" -> "code of conduct", "section" -> "code of conduct", "position" -> "100")),
+          Map("title" -> "code of conduct", "section" -> "code of conduct", "position" -> "100")
+        ),
         file("LICENSE") -> ExtraMdFileConfig(
           "license.md",
           "page",
-          Map("title" -> "license", "section" -> "license", "position" -> "101"))
+          Map("title" -> "license", "section" -> "license", "position" -> "101")
+        )
       )
     )
   }
@@ -77,8 +79,8 @@ lazy val site = project
 // General Settings
 lazy val commonSettings = Seq(
   crossScalaVersions := Seq(scalaVersion.value, "2.12.13"),
-  addCompilerPlugin("org.typelevel" %% "kind-projector" % kindProjectorV cross CrossVersion.full),
-  addCompilerPlugin("com.olegpy" %% "better-monadic-for" % betterMonadicForV),
+  addCompilerPlugin("org.typelevel" %% "kind-projector"     % kindProjectorV cross CrossVersion.full),
+  addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.14.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.1",
@@ -137,4 +139,5 @@ inThisBuild(
     organizationName := "Jack Henry & Associates, Inc.®",
     startYear := Some(2020),
     licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
-  ))
+  )
+)
