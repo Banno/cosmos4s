@@ -1,11 +1,14 @@
 name: Release
+
 on:
   push:
     branches:
       - master
       - main
+      - series/*
     tags:
-      - '*'
+      - v*
+
 env:
   CI: true
   SCALA_VERSION: 2.12.13
