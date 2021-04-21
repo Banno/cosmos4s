@@ -39,7 +39,7 @@ jobs:
 
       - name: Check formatting
         if: startsWith(matrix.scala, '2.13.') && (matrix.java == 'adopt@1.11')
-        run: sbt ++$SCALA_VERSION scalafmtCheckAll
+        run: sbt ++$SCALA_VERSION scalafmtCheckAll scalafmtSbtCheck
 
       - name: Check copyright headers
         if: matrix.java == 'adopt@1.11'
