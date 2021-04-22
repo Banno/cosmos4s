@@ -1,4 +1,4 @@
-# cosmos4s - Cosmos Access Api [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.12) ![Code of Consuct](https://img.shields.io/badge/Code%20of%20Conduct-Scala-blue.svg)
+# cosmos4s - Cosmos Access Api [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.13) ![Code of Consuct](https://img.shields.io/badge/Code%20of%20Conduct-Scala-blue.svg)
 
 ## [Head on over to the microsite](https://banno.github.io/cosmos4s)
 
