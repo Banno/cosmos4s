@@ -47,9 +47,6 @@ jobs:
       - name: Compile
         run: sbt test:compile
 
-      - name: Check compatibility
-        run: sbt mimaReportBinaryIssues
-
       - name: Test
         run: sbt test
 
