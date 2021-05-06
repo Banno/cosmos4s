@@ -37,7 +37,7 @@ lazy val site = project
       micrositeGithubOwner := "Banno",
       micrositeGithubRepo := "cosmos4s",
       micrositeBaseUrl := "/cosmos4s",
-      micrositeDocumentationUrl := "https://www.javadoc.io/doc/com.banno/cosmos4s_2.12",
+      micrositeDocumentationUrl := "https://www.javadoc.io/doc/com.banno/cosmos4s_2.13",
       micrositeFooterText := None,
       micrositeHighlightTheme := "atom-one-light",
       micrositePalette := Map(
@@ -50,8 +50,7 @@ lazy val site = project
         "gray-lighter" -> "#F4F3F4",
         "white-color" -> "#FFFFFF"
       ),
-      micrositeCompilingDocsTool := WithMdoc,
-      Tut / scalacOptions --= Seq(
+      scalacOptions --= Seq(
         "-Xfatal-warnings",
         "-Ywarn-unused-import",
         "-Ywarn-numeric-widen",
