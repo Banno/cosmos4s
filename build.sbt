@@ -2,7 +2,7 @@ val catsV = "2.6.0"
 val catsEffectV = "3.1.0"
 val fs2V = "3.0.1"
 val circeV = "0.13.0"
-val specs2V = "4.10.6"
+val specs2V = "4.11.0"
 // compiler plugins
 val kindProjectorV = "0.11.3"
 val betterMonadicForV = "0.3.1"
