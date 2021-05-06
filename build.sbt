@@ -1,8 +1,8 @@
 val catsV = "2.6.0"
-val catsEffectV = "2.5.0"
-val fs2V = "2.5.4"
+val catsEffectV = "3.1.0"
+val fs2V = "3.0.2"
 val circeV = "0.13.0"
-val specs2V = "4.10.6"
+val specs2V = "4.11.0"
 // compiler plugins
 val kindProjectorV = "0.11.3"
 val betterMonadicForV = "0.3.1"
@@ -37,7 +37,7 @@ lazy val site = project
       micrositeGithubOwner := "Banno",
       micrositeGithubRepo := "cosmos4s",
       micrositeBaseUrl := "/cosmos4s",
-      micrositeDocumentationUrl := "https://www.javadoc.io/doc/com.banno/cosmos4s_2.12",
+      micrositeDocumentationUrl := "https://www.javadoc.io/doc/com.banno/cosmos4s_2.13",
       micrositeFooterText := None,
       micrositeHighlightTheme := "atom-one-light",
       micrositePalette := Map(
@@ -50,8 +50,7 @@ lazy val site = project
         "gray-lighter" -> "#F4F3F4",
         "white-color" -> "#FFFFFF"
       ),
-      micrositeCompilingDocsTool := WithMdoc,
-      Tut / scalacOptions --= Seq(
+      scalacOptions --= Seq(
         "-Xfatal-warnings",
         "-Ywarn-unused-import",
         "-Ywarn-numeric-widen",
@@ -83,8 +82,8 @@ lazy val commonSettings = Seq(
   addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % betterMonadicForV),
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.14.0",
-    "com.microsoft.azure" % "azure-documentdb"        % "2.6.1",
-    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.0",
+    "com.microsoft.azure" % "azure-documentdb"        % "2.6.2",
+    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.1",
     "org.typelevel"      %% "cats-core"               % catsV,
     "org.typelevel"      %% "cats-effect"             % catsEffectV,
     "co.fs2"             %% "fs2-reactive-streams"    % fs2V,

@@ -3,7 +3,7 @@ layout: home
 
 ---
 
-# cosmos4s - Cosmos Access Api [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.12/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.12)
+# cosmos4s - Cosmos Access Api [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.banno/cosmos4s_2.13)
 
 ## Quick Start
 
