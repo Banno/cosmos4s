@@ -48,9 +48,6 @@ jobs:
       - name: Compile
         run: sbt ++$SCALA_VERSION test:compile
 
-      - name: Check compatibility
-        run: sbt ++$SCALA_VERSION mimaReportBinaryIssues
-
       - name: Test
         run: sbt ++$SCALA_VERSION test
 

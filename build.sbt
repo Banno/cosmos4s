@@ -9,7 +9,6 @@ val betterMonadicForV = "0.3.1"
 
 lazy val `cosmos4s` = project
   .in(file("."))
-  .disablePlugins(MimaPlugin)
   .enablePlugins(NoPublishPlugin)
   .aggregate(core)
 
@@ -22,7 +21,6 @@ lazy val core = project
 
 lazy val site = project
   .in(file("site"))
-  .disablePlugins(MimaPlugin)
   .enablePlugins(MicrositesPlugin)
   .enablePlugins(MdocPlugin)
   .enablePlugins(NoPublishPlugin)
