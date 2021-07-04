@@ -17,8 +17,8 @@
 package com.banno.cosmos4s
 
 import cats._
-import cats.effect._
 import cats.syntax.all._
+import cats.effect._
 import io.circe.Json
 import com.microsoft.azure.documentdb.{DocumentClient, PartitionKeyDefinition}
 import com.microsoft.azure.documentdb.bulkexecutor.{BulkImportResponse, DocumentBulkExecutor}
@@ -64,7 +64,8 @@ object CosmosBulkClient {
       executor: DocumentBulkExecutor,
       maxConcurrencyPerPartitionRange: Int
   ) extends CosmosBulkClient[F, Json] {
-    import scala.collection.JavaConverters._
+
+    import collection.JavaConverters._
 
     def insert(value: List[Json]): F[Unit] =
       Sync[F]
@@ -104,10 +105,10 @@ object CosmosBulkClient {
   sealed trait CosmosBulkClientFailure extends RuntimeException with Product with Serializable
   final case class CosmosBulkInsertFailure(response: BulkImportResponse)
       extends CosmosBulkClientFailure
-  final case object NoneResponseCosmosBulkInsertFailure extends CosmosBulkClientFailure
+  case object NoneResponseCosmosBulkInsertFailure extends CosmosBulkClientFailure
   final case class CosmosBulkUpsertFailure(response: BulkImportResponse)
       extends CosmosBulkClientFailure
-  final case object NoneResponseCosmosBulkUpsertFailure extends CosmosBulkClientFailure
+  case object NoneResponseCosmosBulkUpsertFailure extends CosmosBulkClientFailure
 
   private class MapKCosmosBulkClient[F[_], G[_], V](
       base: CosmosBulkClient[F, V],

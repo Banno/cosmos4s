@@ -24,10 +24,9 @@ import com.azure.cosmos.implementation.NotFoundException
 import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
-import fs2.{Chunk, Stream}
+import fs2.Stream
+import io.circe.jackson._
 import io.circe._
-// import io.circe.jackson._
-
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
@@ -77,8 +76,6 @@ object IndexedCosmosContainer {
 
     private def createFeedOptionsAlways: F[QueryOptions] =
       createFeedOptions.getOrElse(Sync[F].delay(QueryOptions.default))
-
-    import scala.collection.JavaConverters._
 
     def query(
         partitionKey: String,

@@ -18,13 +18,12 @@ package com.banno.cosmos4s
 
 import cats._
 import cats.effect._
-import cats.syntax.all._
 import com.azure.cosmos._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.{Chunk, Stream}
+import io.circe.jackson._
 import io.circe._
-// import io.circe.jackson._
 
 trait RawCosmosContainer[F[_], V] {
   def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, V]
@@ -56,13 +55,13 @@ object RawCosmosContainer {
     def createQueryOptionsAlways: F[QueryOptions] =
       createQueryOptions.getOrElse(Sync[F].delay(QueryOptions.default))
 
-    import scala.collection.JavaConverters._
-
     def queryRaw(
         query: String,
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[F, Json] =
       queryCustomRaw[Json](query, overrides)
+
+    import collection.JavaConverters._
 
     def queryCustomRaw[A: Decoder](
         query: String,
@@ -87,7 +86,7 @@ object RawCosmosContainer {
             Chunk
               .iterable(elements.asScala)
               .traverse(jacksonToCirce(_).as[A])
-              .fold(Stream.raiseError[F], Stream.chunk)
+              .fold(Stream.raiseError[F] _, Stream.chunk(_))
         }
   }
 

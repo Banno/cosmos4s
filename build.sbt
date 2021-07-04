@@ -84,13 +84,18 @@ lazy val commonSettings = Seq(
     "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
     "io.circe"           %% "circe-core"              % circeV,
     "io.circe"           %% "circe-parser"            % circeV,
+    "io.circe"           %% "circe-jackson210"        % "0.14.0",
     "org.scalameta"      %% "munit"                   % munitV           % Test,
     "org.typelevel"      %% "munit-cats-effect-3"     % munitCatsEffectV % Test
   ) ++
   // format: off
   (if (scalaVersion.value.startsWith("2"))
     Seq(compilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)))
-  else Seq())
+  else Seq()),
+
+  scalacOptions ++= (if (scalaVersion.value.startsWith("3"))
+      Seq("-Ykind-projector")
+    else Seq())
   // format: on
 )
 
@@ -135,5 +140,6 @@ inThisBuild(
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
     organization := "com.banno",
     organizationName := "Jack Henry & Associates, Inc.®",
+    pomIncludeRepository := { _ => false }
   )
 )
