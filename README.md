@@ -4,7 +4,7 @@
 
 ## Quick Start
 
-To use cosmos4s in an existing SBT project with Scala 2.12 or 2.13, add the following dependencies to your
+To use cosmos4s in an existing SBT project with Scala 2.12, 2.13 or 3.0, add the following dependencies to your
 `build.sbt` depending on your needs:
 
 ```scala
@@ -17,5 +17,5 @@ libraryDependencies ++= Seq(
 
 | cosmos4s | Scala 2.12 | Scala 2.13 | Scala 3.0 | Cats  | FS2/CE |
 | :------: | :--------: | :--------: | :-------: | :---: | :----: |
-| `0.2.x`  | ✅         | ✅         | ⚙️        | `2.x` | `3.x`  |
+| `0.2.x`  | ✅         | ✅         | ✅        | `2.x` | `3.x`  |
 | `0.1.x`  | ✅         | ✅         | ❌        | `2.x` | `2.x`  |
