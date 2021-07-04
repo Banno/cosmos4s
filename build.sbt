@@ -139,6 +139,15 @@ inThisBuild(
     ),
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
     organization := "com.banno",
-    organizationName := "Jack Henry & Associates, Inc.®",
+    organizationName := "Jack Henry & Associates, Inc.®"
   )
 )
+
+// scaladoc for dotty is still in development
+Compile / doc / sources := {
+  val old = (Compile / doc / sources).value
+  if (scalaVersion.value.startsWith("3"))
+    Seq()
+  else
+    old
+}
