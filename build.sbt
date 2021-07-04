@@ -140,6 +140,5 @@ inThisBuild(
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
     organization := "com.banno",
     organizationName := "Jack Henry & Associates, Inc.®",
-    pomIncludeRepository := { _ => false }
   )
 )
