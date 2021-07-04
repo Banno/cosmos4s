@@ -24,7 +24,7 @@ import com.azure.cosmos.implementation.NotFoundException
 import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
-import fs2.Stream
+import fs2.{Chunk, Stream}
 import io.circe.jackson._
 import io.circe._
 
@@ -84,6 +84,8 @@ object IndexedCosmosContainer {
     ): Stream[F, Json] =
       queryCustom[Json](partitionKey, query, overrides)
 
+    import collection.JavaConverters._
+
     def queryCustom[A: Decoder](
         partitionKey: String,
         query: String,
@@ -109,12 +111,10 @@ object IndexedCosmosContainer {
           val elements = page.getElements()
           if (elements == null) Stream.empty
           else
-            // Chunk
-            //   .iterable(elements.asScala)
-            //   .traverse(jacksonToCirce(_).as[A])
-            //   .fold(Stream.raiseError[F], Stream.chunk)
-
-            ???
+            Chunk
+              .iterable(elements.asScala)
+              .traverse(jacksonToCirce(_).as[A])
+              .fold(Stream.raiseError[F], Stream.chunk)
         }
 
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
@@ -343,7 +343,7 @@ object IndexedCosmosContainer {
         fa.contramapPartitionKey(f)
     }
 
-  implicit def id[F[_], K, V] : Contravariant[IndexedCosmosContainer[F, K, *, V]]=
+  implicit def id[F[_], K, V]: Contravariant[IndexedCosmosContainer[F, K, *, V]] =
     new Contravariant[IndexedCosmosContainer[F, K, *, V]] {
       def contramap[A, B](fa: IndexedCosmosContainer[F, K, A, V])(
           f: B => A

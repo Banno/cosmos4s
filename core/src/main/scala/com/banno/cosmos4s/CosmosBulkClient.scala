@@ -36,9 +36,9 @@ trait CosmosBulkClient[F[_], V] {
 object CosmosBulkClient {
 
   /**
-   * https://docs.microsoft.com/en-us/azure/cosmos-db/bulk-executor-java
-   * It is recommended to instantiate a single DocumentBulkExecutor object for the entire application
-   * within a single virtual machine that corresponds to a specific Azure Cosmos container.
+   * https://docs.microsoft.com/en-us/azure/cosmos-db/bulk-executor-java It is recommended to
+   * instantiate a single DocumentBulkExecutor object for the entire application within a single
+   * virtual machine that corresponds to a specific Azure Cosmos container.
    */
   def impl[F[_]: Sync](
       client: DocumentClient,
