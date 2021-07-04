@@ -1,16 +1,13 @@
-val catsV = "2.5.0"
-val catsEffectV = "3.0.2"
-val fs2V = "3.0.1"
-val circeV = "0.14.0-M5"
-val munitV = "0.7.23"
-val munitCatsEffectV = "1.0.1"
-// compiler plugins
-val kindProjectorV = "0.11.3"
-val betterMonadicForV = "0.3.1"
+val catsV = "2.6.1"
+val catsEffectV = "3.1.1"
+val fs2V = "3.0.5"
+val circeV = "0.14.1"
+val munitV = "0.7.27"
+val munitCatsEffectV = "1.0.5"
+val kindProjectorV = "0.13.0"
 
 lazy val `cosmos4s` = project
   .in(file("."))
-  .disablePlugins(MimaPlugin)
   .enablePlugins(NoPublishPlugin)
   .aggregate(core)
 
@@ -18,23 +15,11 @@ lazy val core = project
   .in(file("core"))
   .settings(commonSettings)
   .settings(
-    name := "cosmos4s",
-    scalacOptions ++=
-      (
-        if (scalaVersion.value.startsWith("3")) Seq("-explaintypes", "-Wunused", "-Ykind-projector")
-       else
-         Seq(
-           "-groups",
-           "-sourcepath",
-           (baseDirectory in LocalRootProject).value.getAbsolutePath,
-           "-doc-source-url",
-           "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
-         ))
+    name := "cosmos4s"
   )
 
 lazy val site = project
   .in(file("site"))
-  .disablePlugins(MimaPlugin)
   .enablePlugins(MicrositesPlugin)
   .enablePlugins(MdocPlugin)
   .enablePlugins(NoPublishPlugin)
@@ -49,7 +34,7 @@ lazy val site = project
       micrositeGithubOwner := "Banno",
       micrositeGithubRepo := "cosmos4s",
       micrositeBaseUrl := "/cosmos4s",
-      micrositeDocumentationUrl := "https://www.javadoc.io/doc/com.banno/cosmos4s_2.12",
+      micrositeDocumentationUrl := "https://www.javadoc.io/doc/com.banno/cosmos4s_2.13",
       micrositeFooterText := None,
       micrositeHighlightTheme := "atom-one-light",
       micrositePalette := Map(
@@ -62,8 +47,7 @@ lazy val site = project
         "gray-lighter" -> "#F4F3F4",
         "white-color" -> "#FFFFFF"
       ),
-      micrositeCompilingDocsTool := WithMdoc,
-      scalacOptions in Tut --= Seq(
+      scalacOptions --= Seq(
         "-Xfatal-warnings",
         "-Ywarn-unused-import",
         "-Ywarn-numeric-widen",
@@ -77,46 +61,51 @@ lazy val site = project
         file("CODE_OF_CONDUCT.md") -> ExtraMdFileConfig(
           "code-of-conduct.md",
           "page",
-          Map("title" -> "code of conduct", "section" -> "code of conduct", "position" -> "100")),
+          Map("title" -> "code of conduct", "section" -> "code of conduct", "position" -> "100")
+        ),
         file("LICENSE") -> ExtraMdFileConfig(
           "license.md",
           "page",
-          Map("title" -> "license", "section" -> "license", "position" -> "101"))
+          Map("title" -> "license", "section" -> "license", "position" -> "101")
+        )
       )
     )
   }
 
 // General Settings
 lazy val commonSettings = Seq(
-  crossScalaVersions := Seq(scalaVersion.value, "2.13.5"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.13.1",
-    "com.microsoft.azure" % "azure-documentdb"        % "2.6.1",
-    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.0",
+    "com.azure"           % "azure-cosmos"            % "4.16.0",
+    "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
+    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.4",
     "org.typelevel"      %% "cats-core"               % catsV,
     "org.typelevel"      %% "cats-effect"             % catsEffectV,
     "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
     "io.circe"           %% "circe-core"              % circeV,
     "io.circe"           %% "circe-parser"            % circeV,
-    // "io.circe"            % "circe-jackson210_2.13"   % "0.13.0",
     "org.scalameta"      %% "munit"                   % munitV           % Test,
     "org.typelevel"      %% "munit-cats-effect-3"     % munitCatsEffectV % Test
-  )
-    ++ (CrossVersion.partialVersion(scalaVersion.value) match {
-      case Some((2, 13)) =>
-        Seq(
-          compilerPlugin(
-            ("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)))
-      case Some((3, _)) => Seq()
-      case _ => Seq()
-    })
+  ) ++
+  // format: off
+  (if (scalaVersion.value.startsWith("2"))
+    Seq(compilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)))
+  else Seq())
+  // format: on
+)
+
+Compile / scalacOptions ++= Seq(
+  "-groups",
+  "-sourcepath",
+  (LocalRootProject / baseDirectory).value.getAbsolutePath,
+  "-doc-source-url",
+  "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
 )
 
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "3.0.0-RC2",
-    organization := "com.banno",
+    scalaVersion := "3.0.0",
     developers := List(
       Developer(
         "ChristopherDavenport",
@@ -144,8 +133,7 @@ inThisBuild(
       )
     ),
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
+    organization := "com.banno",
     organizationName := "Jack Henry & Associates, Inc.®",
-    startYear := Some(2020),
-    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
-    pomIncludeRepository := { _ => false }
-  ))
+  )
+)

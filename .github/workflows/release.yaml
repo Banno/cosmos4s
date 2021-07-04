@@ -1,33 +1,58 @@
 name: Release
+
 on:
   push:
     branches:
       - master
+      - main
+      - series/*
     tags:
-      - '*'
+      - v*
+
 env:
   CI: true
-  SCALA_VERSION: 2.12.12
+  SCALA_VERSION: 3.0.0
+
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2
         with:
           fetch-depth: 0
+
       - uses: olafurpg/setup-scala@v10
+        with:
+          java-version: adopt@1.11
+
       - uses: olafurpg/setup-gpg@v3
-      - name: Cache Coursier
+
+      - name: Cache sbt
         uses: actions/cache@v2
         with:
-          path: ~/.cache/coursier
-          key: sbt-coursier-cache
-      - name: Cache SBT
-        uses: actions/cache@v2
-        with:
-          path: ~/.sbt
-          key: sbt-${{ hashFiles('**/build.sbt') }}
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+            ~/.coursier/cache/v1
+            ~/.cache/coursier/v1
+          key: ${{ runner.os }}-sbt-cache-v2-${{ hashFiles('**/*.sbt') }}-${{ hashFiles('project/build.properties') }}
+
+      - name: Check formatting
+        run: sbt scalafmtCheckAll scalafmtSbtCheck
+
+      - name: Check copyright headers
+        run: sbt headerCheck
+
+      - name: Compile
+        run: sbt test:compile
+
+      - name: Test
+        run: sbt test
+
+      - name: Scaladoc
+        run: sbt doc
+
       - name: Publish
         run: sbt ci-release
         env:
@@ -35,15 +60,21 @@ jobs:
           PGP_SECRET: ${{ secrets.PGP_SECRET }}
           SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
           SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
       - name: Set up Ruby 2.6
+        if: contains(github.ref, 'master')
         uses: actions/setup-ruby@v1
         with:
           ruby-version: 2.6
+
       - name: Install Jekyll
+        if: contains(github.ref, 'master')
         run: |
           gem install bundler
           bundle install --gemfile=site/Gemfile
+
       - name: Publish microsite
+        if: contains(github.ref, 'master')
         run: |
           sbt ++$SCALA_VERSION site/publishMicrosite
         env:

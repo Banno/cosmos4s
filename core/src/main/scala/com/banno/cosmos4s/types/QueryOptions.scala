@@ -16,17 +16,17 @@
 
 package com.banno.cosmos4s.types
 
-import cats.syntax.all._
 import com.azure.cosmos.models.CosmosQueryRequestOptions
 
 final class QueryOptions private (
     maxDegreeOfParallelism: Option[Int],
-    maxBufferedItemCount: Option[Int])
-    extends Serializable {
+    maxBufferedItemCount: Option[Int]
+) extends Serializable {
 
   private[this] def copy(
       maxDegreeOfParallelism: Option[Int] = maxDegreeOfParallelism,
-      maxBufferedItemCount: Option[Int] = maxBufferedItemCount): QueryOptions =
+      maxBufferedItemCount: Option[Int] = maxBufferedItemCount
+  ): QueryOptions =
     new QueryOptions(maxDegreeOfParallelism, maxBufferedItemCount)
 
   def withMaxDegreeOfParallelism(value: Option[Int]): QueryOptions =

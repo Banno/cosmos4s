@@ -19,10 +19,9 @@ package com.banno.cosmos4s
 import cats.effect._
 import cats.effect.syntax.all._
 import cats.syntax.all._
-import fs2.interop.reactivestreams._
 import fs2.Stream
-import reactor.core.publisher.Flux
-import reactor.core.publisher.Mono
+import fs2.interop.reactivestreams._
+import reactor.core.publisher._
 
 object ReactorCore {
   def monoToEffectOpt[F[_]: Async, A](m: F[Mono[A]]): F[Option[A]] =
@@ -37,7 +36,8 @@ object ReactorCore {
     monoToEffectOpt(m).flatMap(
       _.liftTo[F](
         new Throwable("Mono to Effect Conversion failed to produce value")
-      ))
+      )
+    )
 
   def fluxToStream[F[_]: Async, A](m: F[Flux[A]]): fs2.Stream[F, A] =
     Stream
