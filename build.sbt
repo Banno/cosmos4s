@@ -1,6 +1,6 @@
 val catsV = "2.6.1"
 val catsEffectV = "3.1.1"
-val fs2V = "3.0.5"
+val fs2V = "3.0.6"
 val circeV = "0.14.1"
 val munitV = "0.7.27"
 val munitCatsEffectV = "1.0.5"
@@ -9,6 +9,7 @@ val kindProjectorV = "0.13.0"
 lazy val `cosmos4s` = project
   .in(file("."))
   .enablePlugins(NoPublishPlugin)
+  .settings(commonSettings)
   .aggregate(core)
 
 lazy val core = project
@@ -74,6 +75,9 @@ lazy val site = project
 
 // General Settings
 lazy val commonSettings = Seq(
+  startYear := Some(2020),
+  licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+  headerLicense := Some(HeaderLicense.ALv2("2020", "Banno")),
   crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.16.0",
