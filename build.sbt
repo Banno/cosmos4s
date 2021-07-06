@@ -1,15 +1,15 @@
-val catsV = "2.6.0"
-val catsEffectV = "3.1.0"
-val fs2V = "3.0.2"
-val circeV = "0.13.0"
-val specs2V = "4.11.0"
-// compiler plugins
-val kindProjectorV = "0.11.3"
-val betterMonadicForV = "0.3.1"
+val catsV = "2.6.1"
+val catsEffectV = "3.1.1"
+val fs2V = "3.0.6"
+val circeV = "0.14.1"
+val munitV = "0.7.27"
+val munitCatsEffectV = "1.0.5"
+val kindProjectorV = "0.13.0"
 
 lazy val `cosmos4s` = project
   .in(file("."))
   .enablePlugins(NoPublishPlugin)
+  .settings(commonSettings)
   .aggregate(core)
 
 lazy val core = project
@@ -75,25 +75,34 @@ lazy val site = project
 
 // General Settings
 lazy val commonSettings = Seq(
-  crossScalaVersions := Seq(scalaVersion.value, "2.12.13"),
-  addCompilerPlugin("org.typelevel" %% "kind-projector"     % kindProjectorV cross CrossVersion.full),
-  addCompilerPlugin("com.olegpy"    %% "better-monadic-for" % betterMonadicForV),
+  startYear := Some(2020),
+  licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
+  headerLicense := Some(HeaderLicense.ALv2("2020", "Jack Henry & Associates, Inc.®")),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.14.0",
-    "com.microsoft.azure" % "azure-documentdb"        % "2.6.2",
-    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.1",
+    "com.azure"           % "azure-cosmos"            % "4.16.0",
+    "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
+    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.4",
     "org.typelevel"      %% "cats-core"               % catsV,
     "org.typelevel"      %% "cats-effect"             % catsEffectV,
     "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
     "io.circe"           %% "circe-core"              % circeV,
     "io.circe"           %% "circe-parser"            % circeV,
-    "io.circe"           %% "circe-jackson210"        % "0.13.0",
-    "org.specs2"         %% "specs2-core"             % specs2V % Test,
-    "org.specs2"         %% "specs2-scalacheck"       % specs2V % Test
-  )
+    "io.circe"           %% "circe-jackson210"        % "0.14.0",
+    "org.scalameta"      %% "munit"                   % munitV           % Test,
+    "org.typelevel"      %% "munit-cats-effect-3"     % munitCatsEffectV % Test
+  ) ++
+  // format: off
+  (if (scalaVersion.value.startsWith("2"))
+    Seq(compilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)))
+  else Seq()),
+
+  scalacOptions ++= (if (scalaVersion.value.startsWith("3"))
+      Seq("-Ykind-projector")
+    else Seq())
+  // format: on
 )
 
-ThisBuild / organization := "com.banno"
 Compile / scalacOptions ++= Seq(
   "-groups",
   "-sourcepath",
@@ -105,7 +114,7 @@ Compile / scalacOptions ++= Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "2.13.5",
+    scalaVersion := "3.0.0",
     developers := List(
       Developer(
         "ChristopherDavenport",
@@ -133,8 +142,16 @@ inThisBuild(
       )
     ),
     homepage := Some(url("https://github.com/Banno/cosmos4s")),
-    organizationName := "Jack Henry & Associates, Inc.®",
-    startYear := Some(2020),
-    licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt"))
+    organization := "com.banno",
+    organizationName := "Jack Henry & Associates, Inc.®"
   )
 )
+
+// scaladoc for dotty is still in development
+Compile / doc / sources := {
+  val old = (Compile / doc / sources).value
+  if (scalaVersion.value.startsWith("3"))
+    Seq()
+  else
+    old
+}
