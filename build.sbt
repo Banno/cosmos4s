@@ -1,8 +1,8 @@
 val catsV = "2.6.1"
-val catsEffectV = "3.2.2"
+val catsEffectV = "3.2.3"
 val fs2V = "3.1.0"
 val circeV = "0.14.1"
-val munitV = "0.7.27"
+val munitV = "0.7.28"
 val munitCatsEffectV = "1.0.5"
 val kindProjectorV = "0.13.0"
 
@@ -80,7 +80,7 @@ lazy val commonSettings = Seq(
   headerLicense := Some(HeaderLicense.ALv2("2020", "Jack Henry & Associates, Inc.®")),
   crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.17.0",
+    "com.azure"           % "azure-cosmos"            % "4.18.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
     "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.4",
     "org.typelevel"      %% "cats-core"               % catsV,
@@ -114,7 +114,7 @@ Compile / scalacOptions ++= Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "3.0.0",
+    scalaVersion := "3.0.1",
     developers := List(
       Developer(
         "ChristopherDavenport",
@@ -146,12 +146,3 @@ inThisBuild(
     organizationName := "Jack Henry & Associates, Inc.®"
   )
 )
-
-// scaladoc for dotty is still in development
-Compile / doc / sources := {
-  val old = (Compile / doc / sources).value
-  if (scalaVersion.value.startsWith("3"))
-    Seq()
-  else
-    old
-}
