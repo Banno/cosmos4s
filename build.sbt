@@ -1,10 +1,10 @@
 val catsV = "2.6.1"
-val catsEffectV = "3.2.3"
-val fs2V = "3.1.0"
+val catsEffectV = "3.2.9"
+val fs2V = "3.1.4"
 val circeV = "0.14.1"
-val munitV = "0.7.28"
-val munitCatsEffectV = "1.0.5"
-val kindProjectorV = "0.13.0"
+val munitV = "0.7.29"
+val munitCatsEffectV = "1.0.6"
+val kindProjectorV = "0.13.2"
 
 lazy val `cosmos4s` = project
   .in(file("."))
