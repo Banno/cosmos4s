@@ -78,7 +78,7 @@ lazy val commonSettings = Seq(
   startYear := Some(2020),
   licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
   headerLicense := Some(HeaderLicense.ALv2("2020", "Jack Henry & Associates, Inc.®")),
-  crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.7", "2.12.14"),
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.20.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
