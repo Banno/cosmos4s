@@ -82,7 +82,7 @@ lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.20.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
-    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.4",
+    "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.5",
     "org.typelevel"      %% "cats-core"               % catsV,
     "org.typelevel"      %% "cats-effect"             % catsEffectV,
     "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
