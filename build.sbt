@@ -1,5 +1,5 @@
 val catsV = "2.6.1"
-val catsEffectV = "3.2.9"
+val catsEffectV = "3.3.0"
 val fs2V = "3.1.6"
 val circeV = "0.14.1"
 val munitV = "0.7.29"
