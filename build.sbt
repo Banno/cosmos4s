@@ -1,6 +1,6 @@
-val catsV = "2.6.1"
-val catsEffectV = "3.2.9"
-val fs2V = "3.1.4"
+val catsV = "2.7.0"
+val catsEffectV = "3.3.0"
+val fs2V = "3.1.6"
 val circeV = "0.14.1"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.6"
@@ -80,7 +80,7 @@ lazy val commonSettings = Seq(
   headerLicense := Some(HeaderLicense.ALv2("2020", "Jack Henry & Associates, Inc.®")),
   crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.20.0",
+    "com.azure"           % "azure-cosmos"            % "4.20.1",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
     "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.4",
     "org.typelevel"      %% "cats-core"               % catsV,

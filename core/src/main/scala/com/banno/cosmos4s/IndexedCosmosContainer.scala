@@ -34,19 +34,32 @@ trait IndexedCosmosContainer[F[_], K, I, V] {
       query: String,
       overrides: QueryOptions => QueryOptions = identity
   ): Stream[F, V]
+  def queryWithDiagnostics(
+      partitionKey: K,
+      query: String,
+      overrides: QueryOptions => QueryOptions,
+      handleDiagnostics: CosmosDiagnostics => F[Unit]
+  ): Stream[F, V]
   def queryCustom[A: Decoder](
       partitionKey: K,
       query: String,
       overrides: QueryOptions => QueryOptions = identity
   ): Stream[F, A]
+  def queryCustomWithDiagnostics[A: Decoder](
+      partitionKey: K,
+      query: String,
+      overrides: QueryOptions => QueryOptions,
+      handleDiagnostics: CosmosDiagnostics => F[Unit]
+  ): Stream[F, A]
+
   def lookup(partitionKey: K, id: I): F[Option[V]]
   def insert(partitionKey: K, value: V): F[Option[V]]
   def replace(partitionKey: K, id: I, value: V): F[Option[V]]
   def upsert(partitionKey: K, value: V): F[Option[V]]
   def delete(partitionKey: K, id: I): F[Unit]
 
-  def mapK[G[_]](fk: F ~> G): IndexedCosmosContainer[G, K, I, V] =
-    new IndexedCosmosContainer.MapKIndexedCosmosContainer(this, fk)
+  def imapK[G[_]](fk: F ~> G, gk: G ~> F): IndexedCosmosContainer[G, K, I, V] =
+    new IndexedCosmosContainer.IMapKIndexedCosmosContainer(this, fk, gk)
   def contramapPartitionKey[A](f: A => K): IndexedCosmosContainer[F, A, I, V] =
     new IndexedCosmosContainer.ContramapPartitionKey(this, f)
   def contramapId[A](f: A => I): IndexedCosmosContainer[F, K, A, V] =
@@ -77,12 +90,23 @@ object IndexedCosmosContainer {
     private def createFeedOptionsAlways: F[QueryOptions] =
       createFeedOptions.getOrElse(Sync[F].delay(QueryOptions.default))
 
+    private val defaultDiagnoticsHandler: CosmosDiagnostics => F[Unit] =
+      _ => Applicative[F].unit
+
     def query(
         partitionKey: String,
         query: String,
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[F, Json] =
-      queryCustom[Json](partitionKey, query, overrides)
+      queryCustomWithDiagnostics[Json](partitionKey, query, overrides, defaultDiagnoticsHandler)
+
+    def queryWithDiagnostics(
+        partitionKey: String,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, Json] =
+      queryCustomWithDiagnostics[Json](partitionKey, query, overrides, handleDiagnostics)
 
     import collection.JavaConverters._
 
@@ -90,6 +114,14 @@ object IndexedCosmosContainer {
         partitionKey: String,
         query: String,
         overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, A] =
+      queryCustomWithDiagnostics[A](partitionKey, query, overrides, defaultDiagnoticsHandler)
+
+    def queryCustomWithDiagnostics[A: Decoder](
+        partitionKey: String,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
     ): Stream[F, A] =
       Stream
         .eval(createFeedOptionsAlways)
@@ -109,12 +141,14 @@ object IndexedCosmosContainer {
         }
         .flatMap { page =>
           val elements = page.getElements()
-          if (elements == null) Stream.empty
-          else
-            Chunk
-              .iterable(elements.asScala)
-              .traverse(jacksonToCirce(_).as[A])
-              .fold(Stream.raiseError[F], Stream.chunk)
+          val stream =
+            if (elements == null) Stream.empty
+            else
+              Chunk
+                .iterable(elements.asScala)
+                .traverse(jacksonToCirce(_).as[A])
+                .fold(Stream.raiseError[F], Stream.chunk)
+          Stream.exec(handleDiagnostics(page.getCosmosDiagnostics())) ++ stream
         }
 
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
@@ -189,9 +223,10 @@ object IndexedCosmosContainer {
         .void
   }
 
-  private class MapKIndexedCosmosContainer[F[_], G[_], K, I, V](
+  private class IMapKIndexedCosmosContainer[F[_], G[_], K, I, V](
       base: IndexedCosmosContainer[F, K, I, V],
-      fk: F ~> G
+      fk: F ~> G,
+      gk: G ~> F
   ) extends IndexedCosmosContainer[G, K, I, V] {
     def query(
         partitionKey: K,
@@ -199,12 +234,35 @@ object IndexedCosmosContainer {
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[G, V] =
       base.query(partitionKey, query, overrides).translate(fk)
+    def queryWithDiagnostics(
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => G[Unit]
+    ): Stream[G, V] =
+      base
+        .queryWithDiagnostics(partitionKey, query, overrides, d => gk(handleDiagnostics(d)))
+        .translate(fk)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[G, A] =
       base.queryCustom[A](partitionKey, query, overrides).translate(fk)
+    def queryCustomWithDiagnostics[A: Decoder](
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => G[Unit]
+    ): Stream[G, A] =
+      base
+        .queryCustomWithDiagnostics[A](
+          partitionKey,
+          query,
+          overrides,
+          d => gk(handleDiagnostics(d))
+        )
+        .translate(fk)
     def lookup(partitionKey: K, id: I): G[Option[V]] =
       fk(base.lookup(partitionKey, id))
     def insert(partitionKey: K, value: V): G[Option[V]] =
@@ -227,12 +285,26 @@ object IndexedCosmosContainer {
         overrides: QueryOptions => QueryOptions
     ): Stream[F, V] =
       base.query(contra(partitionKey), query, overrides)
+    def queryWithDiagnostics(
+        partitionKey: K2,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, V] =
+      base.queryWithDiagnostics(contra(partitionKey), query, overrides, handleDiagnostics)
     def queryCustom[A: Decoder](
         partitionKey: K2,
         query: String,
         overrides: QueryOptions => QueryOptions
     ): Stream[F, A] =
       base.queryCustom(contra(partitionKey), query, overrides)
+    def queryCustomWithDiagnostics[A: Decoder](
+        partitionKey: K2,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, A] =
+      base.queryCustomWithDiagnostics[A](contra(partitionKey), query, overrides, handleDiagnostics)
     def lookup(partitionKey: K2, id: I): F[Option[V]] =
       base.lookup(contra(partitionKey), id)
     def insert(partitionKey: K2, value: V): F[Option[V]] =
@@ -255,12 +327,26 @@ object IndexedCosmosContainer {
         overrides: QueryOptions => QueryOptions
     ): Stream[F, V] =
       base.query(partitionKey, query, overrides)
+    def queryWithDiagnostics(
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, V] =
+      base.queryWithDiagnostics(partitionKey, query, overrides, handleDiagnostics)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
         overrides: QueryOptions => QueryOptions
     ): Stream[F, A] =
       base.queryCustom(partitionKey, query, overrides)
+    def queryCustomWithDiagnostics[A: Decoder](
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, A] =
+      base.queryCustomWithDiagnostics[A](partitionKey, query, overrides, handleDiagnostics)
     def lookup(partitionKey: K, id: I2): F[Option[V]] =
       base.lookup(partitionKey, contra(id))
     def insert(partitionKey: K, value: V): F[Option[V]] =
@@ -286,12 +372,28 @@ object IndexedCosmosContainer {
       base
         .query(partitionKey, query, overrides)
         .evalMap(f)
+    def queryWithDiagnostics(
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, V2] =
+      base
+        .queryWithDiagnostics(partitionKey, query, overrides, handleDiagnostics)
+        .evalMap(f)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
         overrides: QueryOptions => QueryOptions
     ): Stream[F, A] =
       base.queryCustom(partitionKey, query, overrides)
+    def queryCustomWithDiagnostics[A: Decoder](
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, A] =
+      base.queryCustomWithDiagnostics[A](partitionKey, query, overrides, handleDiagnostics)
     def lookup(partitionKey: K, id: I): F[Option[V2]] =
       base.lookup(partitionKey, id).flatMap(_.traverse(f))
     def insert(partitionKey: K, value: V2): F[Option[V2]] =
@@ -317,12 +419,28 @@ object IndexedCosmosContainer {
       base
         .query(partitionKey, query, overrides)
         .map(f)
+    def queryWithDiagnostics(
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, V2] =
+      base
+        .queryWithDiagnostics(partitionKey, query, overrides, handleDiagnostics)
+        .map(f)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
         overrides: QueryOptions => QueryOptions
     ): Stream[F, A] =
       base.queryCustom(partitionKey, query, overrides)
+    def queryCustomWithDiagnostics[A: Decoder](
+        partitionKey: K,
+        query: String,
+        overrides: QueryOptions => QueryOptions,
+        handleDiagnostics: CosmosDiagnostics => F[Unit]
+    ): Stream[F, A] =
+      base.queryCustomWithDiagnostics(partitionKey, query, overrides, handleDiagnostics)
     def lookup(partitionKey: K, id: I): F[Option[V2]] =
       base.lookup(partitionKey, id).map(_.map(f))
     def insert(partitionKey: K, value: V2): F[Option[V2]] =
