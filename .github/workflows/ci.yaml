@@ -5,7 +5,7 @@ on: pull_request
 env:
   CI: true
   CI_SNAPSHOT_RELEASE: +publishSigned
-  SCALA_VERSION: 3.0.1
+  SCALA_VERSION: 3.1.0
 
 jobs:
   validate:
@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         java: [adopt@1.8, adopt@1.11, adopt@1.15, adopt@1.16]
-        scala: [2.12.14, 2.13.6, 3.0.1]
+        scala: [2.12.15, 2.13.7, 3.1.0]
     env:
       SCALA_VERSION: ${{ matrix.scala }}
     steps:
@@ -52,7 +52,7 @@ jobs:
         run: sbt ++$SCALA_VERSION test
 
       - name: Scaladoc
-        run: sbt ++2.13.6 doc
+        run: sbt ++2.13.7 doc
 
   docs:
     name: Doc Site
