@@ -1,5 +1,5 @@
-val catsV = "2.6.1"
-val catsEffectV = "3.2.9"
+val catsV = "2.7.0"
+val catsEffectV = "3.3.0"
 val fs2V = "3.1.4"
 val circeV = "0.14.1"
 val munitV = "0.7.29"
@@ -78,7 +78,7 @@ lazy val commonSettings = Seq(
   startYear := Some(2020),
   licenses += ("Apache-2.0", new URL("https://www.apache.org/licenses/LICENSE-2.0.txt")),
   headerLicense := Some(HeaderLicense.ALv2("2020", "Jack Henry & Associates, Inc.®")),
-  crossScalaVersions := Seq(scalaVersion.value, "2.13.6", "2.12.14"),
+  crossScalaVersions := Seq(scalaVersion.value, "2.13.7", "2.12.15"),
   libraryDependencies ++= Seq(
     "com.azure"           % "azure-cosmos"            % "4.20.0",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
@@ -114,7 +114,7 @@ Compile / scalacOptions ++= Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "3.0.2",
+    scalaVersion := "3.1.0",
     developers := List(
       Developer(
         "ChristopherDavenport",
