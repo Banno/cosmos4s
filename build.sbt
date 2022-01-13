@@ -1,9 +1,9 @@
 val catsV = "2.7.0"
-val catsEffectV = "3.3.0"
+val catsEffectV = "3.3.4"
 val fs2V = "3.2.4"
 val circeV = "0.14.1"
 val munitV = "0.7.29"
-val munitCatsEffectV = "1.0.6"
+val munitCatsEffectV = "1.0.7"
 val kindProjectorV = "0.13.2"
 
 lazy val `cosmos4s` = project
