@@ -371,7 +371,7 @@ object IndexedCosmosContainer {
     ): Stream[F, V2] =
       base
         .query(partitionKey, query, overrides)
-        .evalMap(f)
+        .evalMapChunk(f)
     def queryWithDiagnostics(
         partitionKey: K,
         query: String,
@@ -380,7 +380,7 @@ object IndexedCosmosContainer {
     ): Stream[F, V2] =
       base
         .queryWithDiagnostics(partitionKey, query, overrides, handleDiagnostics)
-        .evalMap(f)
+        .evalMapChunk(f)
     def queryCustom[A: Decoder](
         partitionKey: K,
         query: String,
