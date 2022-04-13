@@ -114,7 +114,7 @@ Compile / scalacOptions ++= Seq(
 // General Settings
 inThisBuild(
   List(
-    scalaVersion := "3.1.1",
+    scalaVersion := "3.1.2",
     developers := List(
       Developer(
         "ChristopherDavenport",
