@@ -19,6 +19,7 @@ package com.banno.cosmos4s
 import cats._
 import cats.effect._
 import com.azure.cosmos._
+import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.{Chunk, Stream}
@@ -27,9 +28,14 @@ import io.circe._
 import scala.jdk.CollectionConverters._
 
 trait RawCosmosContainer[F[_], V] {
-  def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, V]
+  def queryRaw(
+      query: String,
+      parameters: Map[String, Any] = Map.empty,
+      overrides: QueryOptions => QueryOptions = identity
+  ): Stream[F, V]
   def queryCustomRaw[A: Decoder](
       query: String,
+      parameters: Map[String, Any] = Map.empty,
       overrides: QueryOptions => QueryOptions = identity
   ): Stream[F, A]
 
@@ -58,22 +64,32 @@ object RawCosmosContainer {
 
     def queryRaw(
         query: String,
+        parameters: Map[String, Any],
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[F, Json] =
-      queryCustomRaw[Json](query, overrides)
+      queryCustomRaw[Json](query, parameters, overrides)
 
     def queryCustomRaw[A: Decoder](
         query: String,
+        parameters: Map[String, Any],
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[F, A] =
       Stream
         .eval(createQueryOptionsAlways)
         .map(overrides)
         .flatMap { options =>
+          val sqlParams = parameters
+            .map {
+              case (key, value) =>
+                new SqlParameter(key, value)
+            }
+            .toList
+            .asJava
+          val querySpec = new SqlQuerySpec(query, sqlParams)
           ReactorCore.fluxToStream(
             Sync[F].delay(
               container
-                .queryItems(query, options.build(), classOf[JsonNode])
+                .queryItems(querySpec, options.build(), classOf[JsonNode])
                 .byPage()
             )
           )
@@ -93,41 +109,56 @@ object RawCosmosContainer {
       base: RawCosmosContainer[F, V],
       fk: F ~> G
   ) extends RawCosmosContainer[G, V] {
-    def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[G, V] =
-      base.queryRaw(query, overrides).translate(fk)
+    def queryRaw(
+        query: String,
+        parameters: Map[String, Any],
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[G, V] =
+      base.queryRaw(query, parameters, overrides).translate(fk)
     def queryCustomRaw[A: Decoder](
         query: String,
+        parameters: Map[String, Any],
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[G, A] =
-      base.queryCustomRaw(query, overrides).translate(fk)
+      base.queryCustomRaw(query, parameters, overrides).translate(fk)
   }
 
   private class MapValueRawCosmosContainter[F[_], V, A](
       base: RawCosmosContainer[F, V],
       f: V => A
   ) extends RawCosmosContainer[F, A] {
-    def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, A] =
-      base.queryRaw(query, overrides).map(f)
+    def queryRaw(
+        query: String,
+        parameters: Map[String, Any],
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, A] =
+      base.queryRaw(query, parameters, overrides).map(f)
 
     def queryCustomRaw[B: Decoder](
         query: String,
+        parameters: Map[String, Any],
         overrides: QueryOptions => QueryOptions
     ): Stream[F, B] =
-      base.queryCustomRaw(query, overrides)
+      base.queryCustomRaw(query, parameters, overrides)
   }
 
   private class EvalMapRawCosmosContainer[F[_], V, A](
       base: RawCosmosContainer[F, V],
       f: V => F[A]
   ) extends RawCosmosContainer[F, A] {
-    def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, A] =
-      base.queryRaw(query, overrides).evalMap(f)
+    def queryRaw(
+        query: String,
+        parameters: Map[String, Any],
+        overrides: QueryOptions => QueryOptions = identity
+    ): Stream[F, A] =
+      base.queryRaw(query, parameters, overrides).evalMap(f)
 
     def queryCustomRaw[B: Decoder](
         query: String,
+        parameters: Map[String, Any],
         overrides: QueryOptions => QueryOptions
     ): Stream[F, B] =
-      base.queryCustomRaw(query, overrides)
+      base.queryCustomRaw(query, parameters, overrides)
   }
 
   implicit def functor[F[_]]: Functor[RawCosmosContainer[F, *]] =
