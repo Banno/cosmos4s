@@ -11,7 +11,7 @@ on:
 
 env:
   CI: true
-  SCALA_VERSION: 3.1.2
+  SCALA_VERSION: 3.1.3
 
 jobs:
   release:
