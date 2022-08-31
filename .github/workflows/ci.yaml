@@ -5,7 +5,7 @@ on: pull_request
 env:
   CI: true
   CI_SNAPSHOT_RELEASE: +publishSigned
-  SCALA_VERSION: 3.1.2
+  SCALA_VERSION: 3.1.3
 
 jobs:
   validate:
@@ -15,7 +15,7 @@ jobs:
       fail-fast: false
       matrix:
         java: [adopt@1.8, adopt@1.11, adopt@1.15, adopt@1.16]
-        scala: [2.12.15, 2.13.8, 3.1.2]
+        scala: [2.12.16, 2.13.8, 3.1.3]
     env:
       SCALA_VERSION: ${{ matrix.scala }}
     steps:
