@@ -80,7 +80,7 @@ lazy val commonSettings = Seq(
   headerLicense := Some(HeaderLicense.ALv2("2020", "Jack Henry & Associates, Inc.®")),
   crossScalaVersions := Seq(scalaVersion.value, "2.13.8", "2.12.16"),
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % "4.28.1",
+    "com.azure"           % "azure-cosmos"            % "4.37.1",
     "com.microsoft.azure" % "azure-documentdb"        % "2.6.4",
     "com.microsoft.azure" % "documentdb-bulkexecutor" % "2.12.5",
     "org.typelevel"      %% "cats-core"               % catsV,
