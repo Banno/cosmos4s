@@ -16,38 +16,37 @@ ThisBuild / organizationName := "Jack Henry & Associates, Inc.®"
 ThisBuild / startYear := Some(2020)
 ThisBuild / licenses := Seq(License.Apache2)
 ThisBuild / developers := List(
-      Developer(
-        "ChristopherDavenport",
-        "Christopher Davenport",
-        "chris@christopherdavenport.tech",
-        url("https://github.com/ChristopherDavenport")
-      ),
-      Developer(
-        "JesusMtnez",
-        "Jesús Martínez",
-        "jesusmartinez93@gmail.com",
-        url("https://github.com/JesusMtnez")
-      ),
-      Developer(
-        "BeniVF",
-        "Benigno Villa Fernández",
-        "beni.villa@gmail.com",
-        url("https://github.com/BeniVF")
-      ),
-      Developer(
-        "Ryan-Banno",
-        "Ryan D",
-        "ryan.delap@banno.com",
-        url("https://github.com/Ryan-Banno")
-      )
-    )
+  Developer(
+    "ChristopherDavenport",
+    "Christopher Davenport",
+    "chris@christopherdavenport.tech",
+    url("https://github.com/ChristopherDavenport")
+  ),
+  Developer(
+    "JesusMtnez",
+    "Jesús Martínez",
+    "jesusmartinez93@gmail.com",
+    url("https://github.com/JesusMtnez")
+  ),
+  Developer(
+    "BeniVF",
+    "Benigno Villa Fernández",
+    "beni.villa@gmail.com",
+    url("https://github.com/BeniVF")
+  ),
+  Developer(
+    "Ryan-Banno",
+    "Ryan D",
+    "ryan.delap@banno.com",
+    url("https://github.com/Ryan-Banno")
+  )
+)
 
 ThisBuild / tlSonatypeUseLegacyHost := false
 
 val scala3 = "3.1.3"
 ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.16")
 ThisBuild / scalaVersion := scala3
-
 
 lazy val `cosmos4s` = project
   .in(file("."))
@@ -93,5 +92,3 @@ Compile / scalacOptions ++= Seq(
   "-sourcepath",
   (LocalRootProject / baseDirectory).value.getAbsolutePath
 )
-
-
