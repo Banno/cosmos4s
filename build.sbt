@@ -42,7 +42,7 @@ ThisBuild / developers := List(
       )
     )
 
-ThisBuild / tlSonatypeUseLegacyHost := true // False to go to s01.  Where is it now?
+ThisBuild / tlSonatypeUseLegacyHost := false
 
 val scala3 = "3.1.3"
 ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.16")
@@ -88,13 +88,10 @@ lazy val commonSettings = Seq(
   // format: on
 )
 
-/*
 Compile / scalacOptions ++= Seq(
   "-groups",
   "-sourcepath",
-  (LocalRootProject / baseDirectory).value.getAbsolutePath,
-  "-doc-source-url",
-  "https://github.com/banno/cosmos4s/blob/v" + version.value + "€{FILE_PATH}.scala"
+  (LocalRootProject / baseDirectory).value.getAbsolutePath
 )
-*/
+
 
