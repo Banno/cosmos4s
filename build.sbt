@@ -42,7 +42,7 @@ ThisBuild / developers := List(
   )
 )
 
-ThisBuild / tlSonatypeUseLegacyHost := false
+ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currently
 
 val scala3 = "3.1.3"
 ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.16")
@@ -80,11 +80,6 @@ lazy val commonSettings = Seq(
   (if (scalaVersion.value.startsWith("2"))
     Seq(compilerPlugin(("org.typelevel" %% "kind-projector" % kindProjectorV).cross(CrossVersion.full)))
   else Seq()),
-
-  scalacOptions ++= (if (scalaVersion.value.startsWith("3"))
-      Seq("-Ykind-projector")
-    else Seq())
-  // format: on
 )
 
 Compile / scalacOptions ++= Seq(
