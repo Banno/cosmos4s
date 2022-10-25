@@ -45,7 +45,6 @@ ThisBuild / developers := List(
 ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currently
 ThisBuild / tlFatalWarningsInCi := false //Ignore warnings for now while we get this moved to tl
 
-
 val scala3 = "3.1.3"
 ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.16")
 ThisBuild / scalaVersion := scala3
