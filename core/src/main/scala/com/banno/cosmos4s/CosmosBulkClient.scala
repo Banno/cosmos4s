@@ -22,6 +22,7 @@ import cats.effect._
 import io.circe.Json
 import com.microsoft.azure.documentdb.{DocumentClient, PartitionKeyDefinition}
 import com.microsoft.azure.documentdb.bulkexecutor.{BulkImportResponse, DocumentBulkExecutor}
+import scala.jdk.CollectionConverters
 
 trait CosmosBulkClient[F[_], V] {
   def insert(value: List[V]): F[Unit]
@@ -65,7 +66,7 @@ object CosmosBulkClient {
       maxConcurrencyPerPartitionRange: Int
   ) extends CosmosBulkClient[F, Json] {
 
-    import collection.JavaConverters._
+    import CollectionConverters._
 
     def insert(value: List[Json]): F[Unit] =
       Sync[F]
