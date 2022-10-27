@@ -91,3 +91,11 @@ Compile / scalacOptions ++= Seq(
 
 ThisBuild / tlSitePublishBranch := Some("main")
 lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
+
+lazy val unidocs = project
+  .in(file("unidocs"))
+  .enablePlugins(TypelevelUnidocPlugin) // also enables the ScalaUnidocPlugin
+  .settings(
+    name := "cosmos4s-docs",
+    ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(core)
+  )
