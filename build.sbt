@@ -88,3 +88,6 @@ Compile / scalacOptions ++= Seq(
   "-sourcepath",
   (LocalRootProject / baseDirectory).value.getAbsolutePath
 )
+
+ThisBuild / tlSitePublishBranch := Some("main")
+lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
