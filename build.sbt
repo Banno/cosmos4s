@@ -91,9 +91,11 @@ Compile / scalacOptions ++= Seq(
 import laika.helium.config._
 import laika.ast.Image
 ThisBuild / tlSitePublishBranch := Some("main")
-lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin).settings(
+lazy val docs = project.in(file("site")).enablePlugins(TypelevelSitePlugin)
+/*
+.settings(
     tlSiteHelium := tlSiteHelium.value.site.topNavigationBar(homeLink = ImageLink.external(homepage.value.get.toString(), Image.external("https://typelevel.org/img/logo.svg"))))
-
+*/
 
 lazy val unidocs = project
   .in(file("unidocs"))
