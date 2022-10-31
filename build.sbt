@@ -10,7 +10,7 @@ val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val kindProjectorV = "0.13.2"
 
-ThisBuild / tlBaseVersion := "0.3"
+ThisBuild / tlBaseVersion := "1.0"
 ThisBuild / organization := "com.banno"
 ThisBuild / organizationName := "Jack Henry & Associates, Inc.®"
 ThisBuild / startYear := Some(2020)
