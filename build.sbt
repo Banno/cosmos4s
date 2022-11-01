@@ -1,4 +1,4 @@
-val azureCosmosV = "4.28.1"
+val azureCosmosV = "4.38.1"
 val azureDocumentDBV = "2.6.4"
 val catsV = "2.8.0"
 val catsEffectV = "3.3.14"
