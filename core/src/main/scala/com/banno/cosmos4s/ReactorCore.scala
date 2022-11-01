@@ -27,7 +27,7 @@ object ReactorCore {
   def monoToEffectOpt[F[_]: Async, A](m: F[Mono[A]]): F[Option[A]] =
     Stream
       .eval(m)
-      .flatMap(fromPublisher[F, A])
+      .flatMap(fromPublisher(_, 1))
       .compile
       .last
       .guarantee(Spawn[F].cede)
@@ -42,7 +42,7 @@ object ReactorCore {
   def fluxToStream[F[_]: Async, A](m: F[Flux[A]]): fs2.Stream[F, A] =
     Stream
       .eval(m)
-      .flatMap(fromPublisher[F, A])
+      .flatMap(fromPublisher(_, 1))
       .chunks
       .flatMap(chunk => Stream.eval(Spawn[F].cede).flatMap(_ => Stream.chunk(chunk).covary[F]))
 }
