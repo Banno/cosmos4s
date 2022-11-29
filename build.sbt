@@ -46,7 +46,7 @@ ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currentl
 ThisBuild / tlFatalWarningsInCi := false //Ignore warnings for now while we get this moved to tl
 
 val scala3 = "3.2.1"
-ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.16")
+ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.17")
 ThisBuild / scalaVersion := scala3
 
 lazy val `cosmos4s` = project
