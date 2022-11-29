@@ -1,3 +1,6 @@
+// https://github.com/sbt/sbt/issues/6997
+ThisBuild / libraryDependencySchemes += "org.scala-lang.modules" %% "scala-xml" % VersionScheme.Always
+
 addSbtPlugin("com.github.sbt"    % "sbt-ci-release"         % "1.5.10")
 addSbtPlugin("io.chrisdavenport" % "sbt-mima-version-check" % "0.1.2")
 addSbtPlugin("io.chrisdavenport" % "sbt-no-publish"         % "0.1.0")
