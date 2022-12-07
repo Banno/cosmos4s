@@ -19,15 +19,11 @@ package com.banno.cosmos4s
 import cats._
 import cats.effect._
 import cats.syntax.all._
-import com.azure.cosmos._
-import com.azure.cosmos.implementation.NotFoundException
+import com.azure.cosmos.CosmosDiagnostics
 import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
-import com.fasterxml.jackson.databind.JsonNode
-import fs2.{Chunk, Stream}
-import io.circe.jackson._
+import fs2.Stream
 import io.circe._
-import scala.jdk.CollectionConverters._
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
@@ -60,7 +56,7 @@ trait IndexedCosmosContainer[F[_], K, I, V] {
   def lookup(partitionKey: K, id: I): F[Option[V]]
   def insert(partitionKey: K, value: V): F[Option[V]]
   def replace(partitionKey: K, id: I, value: V): F[Option[V]]
-  def upsert(partitionKey: K, value: V): F[Option[V]]
+  def upsert(value: V): F[Option[V]]
   def delete(partitionKey: K, id: I): F[Unit]
 
   def imapK[G[_]](fk: F ~> G, gk: G ~> F): IndexedCosmosContainer[G, K, I, V] =
@@ -82,13 +78,13 @@ trait IndexedCosmosContainer[F[_], K, I, V] {
 object IndexedCosmosContainer {
 
   def impl[F[_]: Async](
-      container: CosmosAsyncContainer,
+      container: BaseCosmosContainer[F],
       createFeedOptions: Option[F[QueryOptions]] = None
   ): IndexedCosmosContainer[F, String, String, Json] =
     new BaseImpl[F](container, createFeedOptions)
 
   private class BaseImpl[F[_]: Async](
-      container: CosmosAsyncContainer,
+      container: BaseCosmosContainer[F],
       createFeedOptions: Option[F[QueryOptions]] = None
   ) extends IndexedCosmosContainer[F, String, String, Json] {
 
@@ -152,108 +148,43 @@ object IndexedCosmosContainer {
         .eval(createFeedOptionsAlways)
         .map(overrides)
         .flatMap { options =>
-          val sqlParams = parameters
-            .map {
-              case (key, value) =>
-                new SqlParameter(key, value)
-            }
-            .toList
-            .asJava
-          val querySpec = new SqlQuerySpec(query, sqlParams)
-          ReactorCore.fluxToStream(
-            Sync[F].delay(
-              container
-                .queryItems(
-                  querySpec,
-                  options.build().setPartitionKey(new PartitionKey(partitionKey)),
-                  classOf[JsonNode]
-                )
-                .byPage()
-            )
+          container.query(
+            query,
+            parameters,
+            options.withPartitionKey(new PartitionKey(partitionKey).some)
           )
         }
-        .flatMap { page =>
-          val elements = page.getElements()
-          val stream =
-            if (elements == null) Stream.empty
-            else
-              Chunk
-                .iterable(elements.asScala)
-                .traverse(jacksonToCirce(_).as[A])
-                .fold(Stream.raiseError[F], Stream.chunk)
-          Stream.exec(handleDiagnostics(page.getCosmosDiagnostics())) ++ stream
+        .handleDiagnostics(handleDiagnostics)
+        .evalMapChunk { json =>
+          MonadThrow[F].fromEither(json.as[A])
         }
 
     def lookup(partitionKey: String, id: String): F[Option[Json]] =
-      cats.data
-        .OptionT(
-          ReactorCore
-            .monoToEffectOpt(
-              Sync[F].delay(
-                container.readItem(
-                  id,
-                  new PartitionKey(partitionKey),
-                  new CosmosItemRequestOptions(),
-                  classOf[JsonNode]
-                )
-              )
-            )
-            .recoverWith { case _: NotFoundException => Sync[F].pure(None) }
+      container
+        .lookup(
+          partitionKey,
+          id,
+          new CosmosItemRequestOptions()
         )
-        .subflatMap(response => Option(response.getItem()))
-        .map(jacksonToCirce(_))
-        .value
+        .map(_.map(_.item))
 
     def insert(partitionKey: String, value: Json): F[Option[Json]] =
-      cats.data.OptionT
-        .liftF(Sync[F].delay(new CosmosItemRequestOptions()))
-        .flatMap(options =>
-          cats.data.OptionT(
-            ReactorCore.monoToEffectOpt(
-              Sync[F].delay(
-                container.createItem(circeToJackson(value), new PartitionKey(partitionKey), options)
-              )
-            )
-          )
-        )
-        .subflatMap(response => Option(response.getItem()))
-        .map(jacksonToCirce)
-        .value
+      container
+        .insert(partitionKey, value, new CosmosItemRequestOptions())
+        .map(_.map(_.item))
 
     def replace(partitionKey: String, id: String, value: Json): F[Option[Json]] =
-      cats.data
-        .OptionT(
-          ReactorCore.monoToEffectOpt(
-            Sync[F].delay(
-              container.replaceItem(circeToJackson(value), id, new PartitionKey(partitionKey))
-            )
-          )
-        )
-        .subflatMap(response => Option(response.getItem()))
-        .map(jacksonToCirce)
-        .value
+      container
+        .replace(partitionKey, id, value, new CosmosItemRequestOptions())
+        .map(_.map(_.item))
 
-    def upsert(partitionKey: String, value: Json): F[Option[Json]] =
-      cats.data
-        .OptionT(
-          ReactorCore.monoToEffectOpt(
-            Sync[F].delay(
-              container.upsertItem(circeToJackson(value))
-            )
-          )
-        )
-        .subflatMap(response => Option(response.getItem()))
-        .map(jacksonToCirce)
-        .value
+    def upsert(value: Json): F[Option[Json]] =
+      container
+        .upsert(value, new CosmosItemRequestOptions())
+        .map(_.map(_.item))
 
     def delete(partitionKey: String, id: String): F[Unit] =
-      ReactorCore
-        .monoToEffect(
-          Sync[F].delay(
-            container.deleteItem(id, new PartitionKey(partitionKey))
-          )
-        )
-        .void
+      container.delete(partitionKey, id, new CosmosItemRequestOptions()).as(())
   }
 
   private class IMapKIndexedCosmosContainer[F[_], G[_], K, I, V](
@@ -313,8 +244,8 @@ object IndexedCosmosContainer {
       fk(base.insert(partitionKey, value))
     def replace(partitionKey: K, id: I, value: V): G[Option[V]] =
       fk(base.replace(partitionKey, id, value))
-    def upsert(partitionKey: K, value: V): G[Option[V]] =
-      fk(base.upsert(partitionKey, value))
+    def upsert(value: V): G[Option[V]] =
+      fk(base.upsert(value))
     def delete(partitionKey: K, id: I): G[Unit] =
       fk(base.delete(partitionKey, id))
   }
@@ -371,8 +302,8 @@ object IndexedCosmosContainer {
       base.insert(contra(partitionKey), value)
     def replace(partitionKey: K2, id: I, value: V): F[Option[V]] =
       base.replace(contra(partitionKey), id, value)
-    def upsert(partitionKey: K2, value: V): F[Option[V]] =
-      base.upsert(contra(partitionKey), value)
+    def upsert(value: V): F[Option[V]] =
+      base.upsert(value)
     def delete(partitionKey: K2, id: I): F[Unit] =
       base.delete(contra(partitionKey), id)
   }
@@ -423,8 +354,8 @@ object IndexedCosmosContainer {
       base.insert(partitionKey, value)
     def replace(partitionKey: K, id: I2, value: V): F[Option[V]] =
       base.replace(partitionKey, contra(id), value)
-    def upsert(partitionKey: K, value: V): F[Option[V]] =
-      base.upsert(partitionKey, value)
+    def upsert(value: V): F[Option[V]] =
+      base.upsert(value)
     def delete(partitionKey: K, id: I2): F[Unit] =
       base.delete(partitionKey, contra(id))
   }
@@ -480,8 +411,8 @@ object IndexedCosmosContainer {
       base.insert(partitionKey, g(value)).flatMap(_.traverse(f))
     def replace(partitionKey: K, id: I, value: V2): F[Option[V2]] =
       base.replace(partitionKey, id, g(value)).flatMap(_.traverse(f))
-    def upsert(partitionKey: K, value: V2): F[Option[V2]] =
-      base.upsert(partitionKey, g(value)).flatMap(_.traverse(f))
+    def upsert(value: V2): F[Option[V2]] =
+      base.upsert(g(value)).flatMap(_.traverse(f))
     def delete(partitionKey: K, id: I): F[Unit] =
       base.delete(partitionKey, id)
   }
@@ -531,8 +462,8 @@ object IndexedCosmosContainer {
       base.insert(partitionKey, g(value)).map(_.map(f))
     def replace(partitionKey: K, id: I, value: V2): F[Option[V2]] =
       base.replace(partitionKey, id, g(value)).map(_.map(f))
-    def upsert(partitionKey: K, value: V2): F[Option[V2]] =
-      base.upsert(partitionKey, g(value)).map(_.map(f))
+    def upsert(value: V2): F[Option[V2]] =
+      base.upsert(g(value)).map(_.map(f))
     def delete(partitionKey: K, id: I): F[Unit] =
       base.delete(partitionKey, id)
   }

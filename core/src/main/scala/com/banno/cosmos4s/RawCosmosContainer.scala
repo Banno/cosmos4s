@@ -18,14 +18,9 @@ package com.banno.cosmos4s
 
 import cats._
 import cats.effect._
-import com.azure.cosmos._
-import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
-import com.fasterxml.jackson.databind.JsonNode
-import fs2.{Chunk, Stream}
-import io.circe.jackson._
+import fs2.Stream
 import io.circe._
-import scala.jdk.CollectionConverters._
 
 trait RawCosmosContainer[F[_], V] {
   def queryRaw(
@@ -49,13 +44,13 @@ trait RawCosmosContainer[F[_], V] {
 
 object RawCosmosContainer {
   def impl[F[_]: Async](
-      container: CosmosAsyncContainer,
+      container: BaseCosmosContainer[F],
       createQueryOptions: Option[F[QueryOptions]] = None
   ): RawCosmosContainer[F, Json] =
     new BaseImpl[F](container, createQueryOptions)
 
   private class BaseImpl[F[_]: Async](
-      container: CosmosAsyncContainer,
+      container: BaseCosmosContainer[F],
       createQueryOptions: Option[F[QueryOptions]] = None
   ) extends RawCosmosContainer[F, Json] {
 
@@ -78,31 +73,10 @@ object RawCosmosContainer {
         .eval(createQueryOptionsAlways)
         .map(overrides)
         .flatMap { options =>
-          val sqlParams = parameters
-            .map {
-              case (key, value) =>
-                new SqlParameter(key, value)
-            }
-            .toList
-            .asJava
-          val querySpec = new SqlQuerySpec(query, sqlParams)
-          ReactorCore.fluxToStream(
-            Sync[F].delay(
-              container
-                .queryItems(querySpec, options.build(), classOf[JsonNode])
-                .byPage()
-            )
-          )
+          container.query(query, parameters, options)
         }
-        .flatMap { page =>
-          val elements = page.getElements()
-          if (elements == null) Stream.empty
-          else
-            Chunk
-              .iterable(elements.asScala)
-              .traverse(jacksonToCirce(_).as[A])
-              .fold(Stream.raiseError[F] _, Stream.chunk(_))
-        }
+        .collect { case Right(json) => json }
+        .evalMapChunk(json => MonadThrow[F].fromEither(json.as[A]))
   }
 
   private class MapKRawCosmosContainer[F[_], G[_], V](
