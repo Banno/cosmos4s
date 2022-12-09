@@ -16,24 +16,29 @@
 
 package com.banno.cosmos4s.types
 
-import com.azure.cosmos.models.CosmosQueryRequestOptions
+import com.azure.cosmos.models.{CosmosQueryRequestOptions, PartitionKey}
 
 final class QueryOptions private (
     maxDegreeOfParallelism: Option[Int],
-    maxBufferedItemCount: Option[Int]
+    maxBufferedItemCount: Option[Int],
+    partitionKey: Option[PartitionKey]
 ) extends Serializable {
 
   private[this] def copy(
       maxDegreeOfParallelism: Option[Int] = maxDegreeOfParallelism,
-      maxBufferedItemCount: Option[Int] = maxBufferedItemCount
+      maxBufferedItemCount: Option[Int] = maxBufferedItemCount,
+      partitionKey: Option[PartitionKey] = partitionKey
   ): QueryOptions =
-    new QueryOptions(maxDegreeOfParallelism, maxBufferedItemCount)
+    new QueryOptions(maxDegreeOfParallelism, maxBufferedItemCount, partitionKey)
 
   def withMaxDegreeOfParallelism(value: Option[Int]): QueryOptions =
     this.copy(maxDegreeOfParallelism = value)
 
   def withMaxBufferedItemCount(value: Option[Int]): QueryOptions =
     this.copy(maxBufferedItemCount = value)
+
+  def withPartitionKey(value: Option[PartitionKey]): QueryOptions =
+    this.copy(partitionKey = value)
 
   private val getMaxDegreeOfParallelism: Option[Int] = maxDegreeOfParallelism
   private val getMaxBufferedItemCount: Option[Int] = maxBufferedItemCount
@@ -54,10 +59,11 @@ final class QueryOptions private (
     val cosmosQueryOptions = new CosmosQueryRequestOptions()
     maxDegreeOfParallelism.foreach(cosmosQueryOptions.setMaxDegreeOfParallelism)
     maxBufferedItemCount.foreach(cosmosQueryOptions.setMaxBufferedItemCount)
+    partitionKey.foreach(cosmosQueryOptions.setPartitionKey)
     cosmosQueryOptions
   }
 }
 
 object QueryOptions {
-  val default: QueryOptions = new QueryOptions(None, None)
+  val default: QueryOptions = new QueryOptions(None, None, None)
 }
