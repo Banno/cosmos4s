@@ -20,7 +20,7 @@ import cats.data.OptionT
 import cats.effect._
 import cats.syntax.all._
 import com.azure.cosmos.CosmosAsyncContainer
-import com.azure.cosmos.models.{CosmosItemRequestOptions, PartitionKey, SqlParameter, SqlQuerySpec}
+import com.azure.cosmos.models.{PartitionKey, SqlParameter, SqlQuerySpec}
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.Stream
@@ -74,12 +74,12 @@ object BaseCosmosContainer {
       def delete(
           partitionKey: String,
           id: String,
-          options: CosmosItemRequestOptions
+          options: ItemRequestOptions
       ): F[ItemResponse[Unit]] =
         ReactorCore
           .monoToEffect(
             Sync[F].delay(
-              container.deleteItem(id, new PartitionKey(partitionKey), options)
+              container.deleteItem(id, new PartitionKey(partitionKey), options.build())
             )
           )
           .map(ItemResponse.fromCosmosResponse(_ => ()))
@@ -87,12 +87,16 @@ object BaseCosmosContainer {
       def insert(
           partitionKey: String,
           value: Json,
-          options: CosmosItemRequestOptions
+          options: ItemRequestOptions
       ): F[Option[ItemResponse[Json]]] =
         OptionT(
           ReactorCore.monoToEffectOpt(
             Sync[F].delay(
-              container.createItem(circeToJackson(value), new PartitionKey(partitionKey), options)
+              container.createItem(
+                circeToJackson(value),
+                new PartitionKey(partitionKey),
+                options.build()
+              )
             )
           )
         ).map(ItemResponse.fromCosmosResponse(convertJson)).value
@@ -100,7 +104,7 @@ object BaseCosmosContainer {
       def lookup(
           partitionKey: String,
           id: String,
-          options: CosmosItemRequestOptions
+          options: ItemRequestOptions
       ): F[Option[ItemResponse[Json]]] =
         OptionT(
           ReactorCore
@@ -109,7 +113,7 @@ object BaseCosmosContainer {
                 container.readItem(
                   id,
                   new PartitionKey(partitionKey),
-                  options,
+                  options.build(),
                   classOf[JsonNode]
                 )
               )
@@ -119,11 +123,11 @@ object BaseCosmosContainer {
           .map(ItemResponse.fromCosmosResponse(convertJson))
           .value
 
-      def upsert(value: Json, options: CosmosItemRequestOptions): F[Option[ItemResponse[Json]]] =
+      def upsert(value: Json, options: ItemRequestOptions): F[Option[ItemResponse[Json]]] =
         OptionT(
           ReactorCore.monoToEffectOpt(
             Sync[F].delay(
-              container.upsertItem(circeToJackson(value), options)
+              container.upsertItem(circeToJackson(value), options.build())
             )
           )
         )
@@ -134,7 +138,7 @@ object BaseCosmosContainer {
           partitionKey: String,
           id: String,
           value: Json,
-          options: CosmosItemRequestOptions
+          options: ItemRequestOptions
       ): F[Option[ItemResponse[Json]]] =
         OptionT(
           ReactorCore.monoToEffectOpt(
@@ -143,7 +147,7 @@ object BaseCosmosContainer {
                 circeToJackson(value),
                 id,
                 new PartitionKey(partitionKey),
-                options
+                options.build()
               )
             )
           )

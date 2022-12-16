@@ -53,7 +53,7 @@ final class QueryOptions private (
     }
 
   override def hashCode: Int =
-    37 * (37 * (17 + maxDegreeOfParallelism.##) + maxBufferedItemCount.##)
+    37 * (37 * (17 + partitionKey.## + (37 * (17 + maxDegreeOfParallelism.##) + maxBufferedItemCount.##)))
 
   private[cosmos4s] def build(): CosmosQueryRequestOptions = {
     val cosmosQueryOptions = new CosmosQueryRequestOptions()
