@@ -164,27 +164,27 @@ object IndexedCosmosContainer {
         .lookup(
           partitionKey,
           id,
-          new CosmosItemRequestOptions()
+          ItemRequestOptions.default
         )
         .map(_.map(_.item))
 
     def insert(partitionKey: String, value: Json): F[Option[Json]] =
       container
-        .insert(partitionKey, value, new CosmosItemRequestOptions())
+        .insert(partitionKey, value, ItemRequestOptions.default)
         .map(_.map(_.item))
 
     def replace(partitionKey: String, id: String, value: Json): F[Option[Json]] =
       container
-        .replace(partitionKey, id, value, new CosmosItemRequestOptions())
+        .replace(partitionKey, id, value, ItemRequestOptions.default)
         .map(_.map(_.item))
 
     def upsert(value: Json): F[Option[Json]] =
       container
-        .upsert(value, new CosmosItemRequestOptions())
+        .upsert(value, ItemRequestOptions.default)
         .map(_.map(_.item))
 
     def delete(partitionKey: String, id: String): F[Unit] =
-      container.delete(partitionKey, id, new CosmosItemRequestOptions()).as(())
+      container.delete(partitionKey, id, ItemRequestOptions.default).as(())
   }
 
   private class IMapKIndexedCosmosContainer[F[_], G[_], K, I, V](

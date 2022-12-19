@@ -18,7 +18,6 @@ package com.banno.cosmos4s
 
 import cats.{~>, Functor}
 import cats.implicits._
-import com.azure.cosmos.models.CosmosItemRequestOptions
 import com.banno.cosmos4s.types._
 import fs2.Stream
 import cats.Monad
@@ -34,27 +33,27 @@ trait CosmosContainer[F[_], Key, Id, StreamResult[_], QueryValue, SingleResult[_
   def lookup(
       partitionKey: Key,
       id: Id,
-      options: CosmosItemRequestOptions = new CosmosItemRequestOptions()
+      options: ItemRequestOptions = ItemRequestOptions.default
   ): F[Option[SingleResult[SingleValue]]]
   def insert(
       partitionKey: Key,
       value: SingleValue,
-      options: CosmosItemRequestOptions = new CosmosItemRequestOptions()
+      options: ItemRequestOptions = ItemRequestOptions.default
   ): F[Option[SingleResult[SingleValue]]]
   def replace(
       partitionKey: Key,
       id: Id,
       value: SingleValue,
-      options: CosmosItemRequestOptions = new CosmosItemRequestOptions()
+      options: ItemRequestOptions = ItemRequestOptions.default
   ): F[Option[SingleResult[SingleValue]]]
   def upsert(
       value: SingleValue,
-      options: CosmosItemRequestOptions = new CosmosItemRequestOptions()
+      options: ItemRequestOptions = ItemRequestOptions.default
   ): F[Option[SingleResult[SingleValue]]]
   def delete(
       partitionKey: Key,
       id: Id,
-      options: CosmosItemRequestOptions = new CosmosItemRequestOptions()
+      options: ItemRequestOptions = ItemRequestOptions.default
   ): F[SingleResult[Unit]]
 
   def imapK[G[_]](
@@ -128,31 +127,31 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): G[Option[SingleResult[SingleValue]]] =
       fk(base.lookup(partitionKey, id, options))
     def insert(
         partitionKey: Key,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): G[Option[SingleResult[SingleValue]]] =
       fk(base.insert(partitionKey, value, options))
     def replace(
         partitionKey: Key,
         id: Id,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): G[Option[SingleResult[SingleValue]]] =
       fk(base.replace(partitionKey, id, value, options))
     def upsert(
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): G[Option[SingleResult[SingleValue]]] =
       fk(base.upsert(value, options))
     def delete(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): G[SingleResult[Unit]] =
       fk(base.delete(partitionKey, id, options))
   }
@@ -172,31 +171,31 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key2,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.lookup(contra(partitionKey), id, options)
     def insert(
         partitionKey: Key2,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.insert(contra(partitionKey), value, options)
     def replace(
         partitionKey: Key2,
         id: Id,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.replace(contra(partitionKey), id, value, options)
     def upsert(
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.upsert(value, options)
     def delete(
         partitionKey: Key2,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[SingleResult[Unit]] =
       base.delete(contra(partitionKey), id, options)
   }
@@ -216,31 +215,31 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key,
         id: Id2,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.lookup(partitionKey, contra(id), options)
     def insert(
         partitionKey: Key,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.insert(partitionKey, value, options)
     def replace(
         partitionKey: Key,
         id: Id2,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.replace(partitionKey, contra(id), value, options)
     def upsert(
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.upsert(value, options)
     def delete(
         partitionKey: Key,
         id: Id2,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[SingleResult[Unit]] =
       base.delete(partitionKey, contra(id), options)
   }
@@ -263,32 +262,32 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[A]]] =
       base.lookup(partitionKey, id, options).flatMap(_.traverse(_.traverse(f)))
     def insert(
         partitionKey: Key,
         value: A,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[A]]] =
       base.insert(partitionKey, g(value), options).flatMap(_.traverse(_.traverse(f)))
     def replace(
         partitionKey: Key,
         id: Id,
         value: A,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[A]]] =
       base.replace(partitionKey, id, g(value), options).flatMap(_.traverse(_.traverse(f)))
 
     def upsert(
         value: A,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[A]]] =
       base.upsert(g(value), options).flatMap(_.traverse(_.traverse(f)))
     def delete(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[SingleResult[Unit]] =
       base.delete(partitionKey, id, options)
   }
@@ -310,32 +309,32 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.lookup(partitionKey, id, options)
     def insert(
         partitionKey: Key,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.insert(partitionKey, value, options)
     def replace(
         partitionKey: Key,
         id: Id,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.replace(partitionKey, id, value, options)
 
     def upsert(
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.upsert(value, options)
     def delete(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[SingleResult[Unit]] =
       base.delete(partitionKey, id, options)
   }
@@ -356,32 +355,32 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[A]] =
       base.lookup(partitionKey, id, options).map(_.map(f))
     def insert(
         partitionKey: Key,
         value: A,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[A]] =
       base.insert(partitionKey, g(value), options).map(_.map(f))
     def replace(
         partitionKey: Key,
         id: Id,
         value: A,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[A]] =
       base.replace(partitionKey, id, g(value), options).map(_.map(f))
 
     def upsert(
         value: A,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[A]] =
       base.upsert(g(value), options).map(_.map(f))
     def delete(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Unit] =
       base.delete(partitionKey, id, options).as(())
   }
@@ -401,32 +400,32 @@ object CosmosContainer {
     def lookup(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.lookup(partitionKey, id, options)
     def insert(
         partitionKey: Key,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.insert(partitionKey, value, options)
     def replace(
         partitionKey: Key,
         id: Id,
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.replace(partitionKey, id, value, options)
 
     def upsert(
         value: SingleValue,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[Option[SingleResult[SingleValue]]] =
       base.upsert(value, options)
     def delete(
         partitionKey: Key,
         id: Id,
-        options: CosmosItemRequestOptions
+        options: ItemRequestOptions
     ): F[SingleResult[Unit]] =
       base.delete(partitionKey, id, options)
   }
