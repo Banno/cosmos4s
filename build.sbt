@@ -1,5 +1,5 @@
-val azureCosmosV = "4.28.1"
-val azureDocumentDBV = "2.6.4"
+val azureCosmosV = "4.39.0"
+val azureDocumentDBV = "2.6.5"
 val catsV = "2.8.0"
 val catsEffectV = "3.3.14"
 val circeJackson210V = "0.14.0"
@@ -45,8 +45,8 @@ ThisBuild / developers := List(
 ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currently
 ThisBuild / tlFatalWarningsInCi := false //Ignore warnings for now while we get this moved to tl
 
-val scala3 = "3.1.3"
-ThisBuild / crossScalaVersions := Seq(scala3, "2.13.8", "2.12.16")
+val scala3 = "3.2.1"
+ThisBuild / crossScalaVersions := Seq(scala3, "2.13.10", "2.12.17")
 ThisBuild / scalaVersion := scala3
 
 lazy val `cosmos4s` = project
