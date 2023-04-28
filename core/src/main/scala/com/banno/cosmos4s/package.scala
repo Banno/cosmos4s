@@ -42,12 +42,15 @@ package object cosmos4s {
   implicit class ResultStream[F[_], A](private val stream: Stream[F, Either[FeedResponse, A]])
       extends AnyVal {
     def handleResultMeta(f: FeedResponse => F[Unit])(implicit ev: Applicative[F]): Stream[F, A] =
-      stream
-        .evalMapChunk {
-          case Left(response) => f(response).as[Option[A]](None)
-          case Right(a) => a.some.pure
+      stream.chunks
+        .flatMap { c =>
+          Stream.evalUnChunk(
+            c.traverseFilter {
+              case Left(response) => f(response).as[Option[A]](None)
+              case Right(a) => a.some.pure
+            }
+          )
         }
-        .collect { case Some(a) => a }
 
     def handleDiagnostics(f: CosmosDiagnostics => F[Unit])(implicit
         ev: Applicative[F]
