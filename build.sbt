@@ -1,3 +1,5 @@
+import org.typelevel.sbt.gha.WorkflowStep._
+
 val azureCosmosV = "4.39.0"
 val azureDocumentDBV = "2.6.5"
 val catsV = "2.9.0"
@@ -100,3 +102,25 @@ lazy val unidocs = project
     name := "cosmos4s-docs",
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(core)
   )
+
+inThisBuild(
+  List(
+    // This is nasty and can go away after
+    // https://github.com/typelevel/sbt-typelevel/issues/442
+    tlCiDependencyGraphJob := false,
+    githubWorkflowAddedJobs += WorkflowJob(
+      "dependency-submission",
+      "Submit Dependencies",
+      scalas = List(scalaVersion.value),
+      javas = List(githubWorkflowJavaVersions.value.head),
+      steps = githubWorkflowJobSetup.value.toList :+
+        Use(
+          UseRef.Public("scalacenter", "sbt-dependency-submission", "v2"),
+          name = Some("Submit Dependencies"),
+          params = Map(
+            "configs-ignore" -> "scala-doc-tool scala-tool test"
+          )
+        )
+    ).copy(cond = Some("github.event_name != 'pull_request'"))
+  )
+)
