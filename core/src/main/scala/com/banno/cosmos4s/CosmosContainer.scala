@@ -305,7 +305,7 @@ object CosmosContainer {
         parameters: Map[String, Any],
         options: QueryOptions
     ): Stream[F, StreamResult[A]] =
-      base.query(query, parameters, options).evalMap(_.traverse(f))
+      base.query(query, parameters, options).evalMapChunk(_.traverse(f))
     def lookup(
         partitionKey: Key,
         id: Id,
