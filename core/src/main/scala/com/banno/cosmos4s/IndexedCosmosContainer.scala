@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import fs2.{Chunk, Stream}
 import io.circe.jackson._
 import io.circe._
+import scala.jdk.CollectionConverters._
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(
@@ -107,8 +108,6 @@ object IndexedCosmosContainer {
         handleDiagnostics: CosmosDiagnostics => F[Unit]
     ): Stream[F, Json] =
       queryCustomWithDiagnostics[Json](partitionKey, query, overrides, handleDiagnostics)
-
-    import collection.JavaConverters._
 
     def queryCustom[A: Decoder](
         partitionKey: String,
