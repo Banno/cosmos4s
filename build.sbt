@@ -47,7 +47,7 @@ ThisBuild / developers := List(
 ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currently
 
 val scala3 = "3.3.0"
-ThisBuild / crossScalaVersions := Seq(scala3, "2.13.11", "2.12.18")
+ThisBuild / crossScalaVersions := Seq(scala3, "2.13.11")
 ThisBuild / scalaVersion := scala3
 
 lazy val `cosmos4s` = project
