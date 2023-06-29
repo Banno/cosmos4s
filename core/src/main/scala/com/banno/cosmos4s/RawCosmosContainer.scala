@@ -24,6 +24,7 @@ import com.fasterxml.jackson.databind.JsonNode
 import fs2.{Chunk, Stream}
 import io.circe.jackson._
 import io.circe._
+import scala.jdk.CollectionConverters._
 
 trait RawCosmosContainer[F[_], V] {
   def queryRaw(query: String, overrides: QueryOptions => QueryOptions = identity): Stream[F, V]
@@ -60,8 +61,6 @@ object RawCosmosContainer {
         overrides: QueryOptions => QueryOptions = identity
     ): Stream[F, Json] =
       queryCustomRaw[Json](query, overrides)
-
-    import collection.JavaConverters._
 
     def queryCustomRaw[A: Decoder](
         query: String,
