@@ -1,6 +1,6 @@
 import org.typelevel.sbt.gha.WorkflowStep._
 
-val azureCosmosV = "4.39.0"
+val azureCosmosV = "4.48.1"
 val azureDocumentDBV = "2.6.5"
 val catsV = "2.9.0"
 val catsEffectV = "3.5.1"
