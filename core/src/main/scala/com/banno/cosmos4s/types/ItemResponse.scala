@@ -20,7 +20,7 @@ import cats.Traverse
 import cats.syntax.all._
 import com.azure.cosmos.CosmosDiagnostics
 import com.azure.cosmos.models.CosmosItemResponse
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import scala.concurrent.duration.FiniteDuration
 import java.util.concurrent.TimeUnit
 import cats.Applicative

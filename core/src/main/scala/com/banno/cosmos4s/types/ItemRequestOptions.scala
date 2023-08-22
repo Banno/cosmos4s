@@ -17,7 +17,7 @@
 package com.banno.cosmos4s.types
 
 import com.azure.cosmos.models.{CosmosItemRequestOptions, IndexingDirective}
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final class ItemRequestOptions private (
     private val ifMatchEtag: Option[String],
@@ -62,11 +62,11 @@ final class ItemRequestOptions private (
     o match {
       case x: ItemRequestOptions =>
         (this.ifMatchEtag == x.ifMatchEtag) &&
-          (this.ifNoneMatchEtag == x.ifNoneMatchEtag) &&
-          (this.indexingDirective == x.indexingDirective) &&
-          (this.postTriggerInclude == x.postTriggerInclude) &&
-          (this.preTriggerInclude == x.preTriggerInclude) &&
-          (this.sessionToken == x.sessionToken)
+        (this.ifNoneMatchEtag == x.ifNoneMatchEtag) &&
+        (this.indexingDirective == x.indexingDirective) &&
+        (this.postTriggerInclude == x.postTriggerInclude) &&
+        (this.preTriggerInclude == x.preTriggerInclude) &&
+        (this.sessionToken == x.sessionToken)
       case _ => false
     }
 
