@@ -1,11 +1,13 @@
-val azureCosmosV = "4.28.1"
-val azureDocumentDBV = "2.6.4"
-val catsV = "2.8.0"
-val catsEffectV = "3.3.14"
+import org.typelevel.sbt.gha.WorkflowStep._
+
+val azureCosmosV = "4.39.0"
+val azureDocumentDBV = "2.6.5"
+val catsV = "2.10.0"
+val catsEffectV = "3.5.1"
 val circeJackson210V = "0.14.0"
 val documentDBBulkExecV = "2.12.5"
-val fs2V = "3.3.0"
-val circeV = "0.14.3"
+val fs2V = "3.8.0"
+val circeV = "0.14.5"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val kindProjectorV = "0.13.2"
@@ -43,10 +45,9 @@ ThisBuild / developers := List(
 )
 
 ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currently
-ThisBuild / tlFatalWarningsInCi := false //Ignore warnings for now while we get this moved to tl
 
-val scala3 = "3.1.3"
-ThisBuild / crossScalaVersions := Seq(scala3, "2.13.10", "2.12.17")
+val scala3 = "3.3.0"
+ThisBuild / crossScalaVersions := Seq(scala3, "2.13.11")
 ThisBuild / scalaVersion := scala3
 
 lazy val `cosmos4s` = project
@@ -100,3 +101,26 @@ lazy val unidocs = project
     name := "cosmos4s-docs",
     ScalaUnidoc / unidoc / unidocProjectFilter := inProjects(core)
   )
+
+inThisBuild(
+  List(
+    // This is nasty and can go away after
+    // https://github.com/typelevel/sbt-typelevel/issues/442
+    tlCiDependencyGraphJob := false,
+    githubWorkflowAddedJobs += WorkflowJob(
+      "dependency-submission",
+      "Submit Dependencies",
+      scalas = List(scalaVersion.value),
+      javas = List(githubWorkflowJavaVersions.value.head),
+      steps = githubWorkflowJobSetup.value.toList :+
+        Use(
+          UseRef.Public("scalacenter", "sbt-dependency-submission", "v2"),
+          name = Some("Submit Dependencies"),
+          params = Map(
+            "modules-ignore" -> "docs_2.12 docs_2.13 docs_3",
+            "configs-ignore" -> "scala-doc-tool scala-tool test"
+          )
+        )
+    ).copy(cond = Some("github.event_name != 'pull_request'"))
+  )
+)
