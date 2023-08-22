@@ -17,7 +17,7 @@
 package com.banno.cosmos4s.types
 
 import com.azure.cosmos.models.{CosmosItemRequestOptions, IndexingDirective}
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 final class ItemRequestOptions private (
     private val ifMatchEtag: Option[String],

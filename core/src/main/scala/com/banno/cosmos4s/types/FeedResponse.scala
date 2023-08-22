@@ -16,7 +16,7 @@
 
 package com.banno.cosmos4s.types
 
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import com.azure.cosmos.CosmosDiagnostics
 
 object FeedResponse {
