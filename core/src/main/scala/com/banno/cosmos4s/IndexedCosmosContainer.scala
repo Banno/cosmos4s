@@ -24,7 +24,6 @@ import com.azure.cosmos.models._
 import com.banno.cosmos4s.types._
 import fs2.Stream
 import io.circe._
-import scala.jdk.CollectionConverters._
 
 trait IndexedCosmosContainer[F[_], K, I, V] {
   def query(

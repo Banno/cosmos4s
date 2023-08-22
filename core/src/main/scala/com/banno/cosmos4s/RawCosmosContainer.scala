@@ -21,7 +21,6 @@ import cats.effect._
 import com.banno.cosmos4s.types._
 import fs2.Stream
 import io.circe._
-import scala.jdk.CollectionConverters._
 
 trait RawCosmosContainer[F[_], V] {
   def queryRaw(

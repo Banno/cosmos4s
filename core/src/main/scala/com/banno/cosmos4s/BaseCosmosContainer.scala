@@ -24,7 +24,7 @@ import com.azure.cosmos.models.{PartitionKey, SqlParameter, SqlQuerySpec}
 import com.banno.cosmos4s.types._
 import com.fasterxml.jackson.databind.JsonNode
 import fs2.Stream
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 import io.circe.jackson._
 import io.circe._
 import com.azure.cosmos.implementation.NotFoundException
