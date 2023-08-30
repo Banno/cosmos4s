@@ -1,11 +1,9 @@
 import org.typelevel.sbt.gha.WorkflowStep._
 
-val azureCosmosV = "4.48.1"
-val azureDocumentDBV = "2.6.5"
+val azureCosmosV = "4.49.0"
 val catsV = "2.10.0"
 val catsEffectV = "3.5.1"
 val circeJackson210V = "0.14.0"
-val documentDBBulkExecV = "2.12.5"
 val fs2V = "3.8.0"
 val circeV = "0.14.5"
 val munitV = "0.7.29"
@@ -66,17 +64,15 @@ lazy val core = project
 // General Settings
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.azure"           % "azure-cosmos"            % azureCosmosV,
-    "com.microsoft.azure" % "azure-documentdb"        % azureDocumentDBV,
-    "com.microsoft.azure" % "documentdb-bulkexecutor" % documentDBBulkExecV,
-    "org.typelevel"      %% "cats-core"               % catsV,
-    "org.typelevel"      %% "cats-effect"             % catsEffectV,
-    "co.fs2"             %% "fs2-reactive-streams"    % fs2V,
-    "io.circe"           %% "circe-core"              % circeV,
-    "io.circe"           %% "circe-parser"            % circeV,
-    "io.circe"           %% "circe-jackson210"        % circeJackson210V,
-    "org.scalameta"      %% "munit"                   % munitV           % Test,
-    "org.typelevel"      %% "munit-cats-effect-3"     % munitCatsEffectV % Test
+    "com.azure"      % "azure-cosmos"         % azureCosmosV,
+    "org.typelevel" %% "cats-core"            % catsV,
+    "org.typelevel" %% "cats-effect"          % catsEffectV,
+    "co.fs2"        %% "fs2-reactive-streams" % fs2V,
+    "io.circe"      %% "circe-core"           % circeV,
+    "io.circe"      %% "circe-parser"         % circeV,
+    "io.circe"      %% "circe-jackson210"     % circeJackson210V,
+    "org.scalameta" %% "munit"                % munitV           % Test,
+    "org.typelevel" %% "munit-cats-effect-3"  % munitCatsEffectV % Test
   ) ++
   // format: off
   (if (scalaVersion.value.startsWith("2"))
