@@ -1,6 +1,6 @@
 import org.typelevel.sbt.gha.WorkflowStep._
 
-val azureCosmosV = "4.49.0"
+val azureCosmosV = "4.51.0"
 val catsV = "2.10.0"
 val catsEffectV = "3.5.2"
 val circeJackson210V = "0.14.0"
