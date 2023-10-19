@@ -8,6 +8,7 @@ val fs2V = "3.9.2"
 val circeV = "0.14.6"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
+val nettyV = "4.1.100.Final"
 val kindProjectorV = "0.13.2"
 
 ThisBuild / tlBaseVersion := "1.0"
@@ -71,6 +72,7 @@ lazy val commonSettings = Seq(
     "io.circe"      %% "circe-core"           % circeV,
     "io.circe"      %% "circe-parser"         % circeV,
     "io.circe"      %% "circe-jackson210"     % circeJackson210V,
+    "io.netty"       % "netty-codec-http2"    % nettyV           % Runtime, // GHSA-xpw8-rcwv-8f8p
     "org.scalameta" %% "munit"                % munitV           % Test,
     "org.typelevel" %% "munit-cats-effect-3"  % munitCatsEffectV % Test
   ) ++
