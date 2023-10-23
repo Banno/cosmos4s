@@ -20,14 +20,15 @@ import cats.effect._
 import cats.effect.syntax.all._
 import cats.syntax.all._
 import fs2.Stream
-import fs2.interop.reactivestreams._
+import fs2.interop.flow._
 import reactor.core.publisher._
+import reactor.adapter.JdkFlowAdapter.publisherToFlowPublisher
 
 object ReactorCore {
   def monoToEffectOpt[F[_]: Async, A](m: F[Mono[A]]): F[Option[A]] =
     Stream
       .eval(m)
-      .flatMap(fromPublisher(_, 1))
+      .flatMap(m => fromPublisher(publisherToFlowPublisher(m), 1))
       .compile
       .last
       .guarantee(Spawn[F].cede)
@@ -42,7 +43,7 @@ object ReactorCore {
   def fluxToStream[F[_]: Async, A](m: F[Flux[A]]): fs2.Stream[F, A] =
     Stream
       .eval(m)
-      .flatMap(fromPublisher(_, 1))
+      .flatMap(f => fromPublisher(publisherToFlowPublisher(f), 1))
       .chunks
       .flatMap(chunk => Stream.eval(Spawn[F].cede).flatMap(_ => Stream.chunk(chunk).covary[F]))
 }
