@@ -48,6 +48,7 @@ ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currentl
 val scala3 = "3.3.1"
 ThisBuild / crossScalaVersions := Seq(scala3, "2.13.11")
 ThisBuild / scalaVersion := scala3
+ThisBuild / githubWorkflowJavaVersions := List(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
 
 lazy val `cosmos4s` = project
   .in(file("."))
@@ -65,16 +66,16 @@ lazy val core = project
 // General Settings
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.azure"      % "azure-cosmos"         % azureCosmosV,
-    "org.typelevel" %% "cats-core"            % catsV,
-    "org.typelevel" %% "cats-effect"          % catsEffectV,
-    "co.fs2"        %% "fs2-reactive-streams" % fs2V,
-    "io.circe"      %% "circe-core"           % circeV,
-    "io.circe"      %% "circe-parser"         % circeV,
-    "io.circe"      %% "circe-jackson210"     % circeJackson210V,
-    "io.netty"       % "netty-codec-http2"    % nettyV           % Runtime, // GHSA-xpw8-rcwv-8f8p
-    "org.scalameta" %% "munit"                % munitV           % Test,
-    "org.typelevel" %% "munit-cats-effect-3"  % munitCatsEffectV % Test
+    "com.azure"      % "azure-cosmos"        % azureCosmosV,
+    "org.typelevel" %% "cats-core"           % catsV,
+    "org.typelevel" %% "cats-effect"         % catsEffectV,
+    "co.fs2"        %% "fs2-core"            % fs2V,
+    "io.circe"      %% "circe-core"          % circeV,
+    "io.circe"      %% "circe-parser"        % circeV,
+    "io.circe"      %% "circe-jackson210"    % circeJackson210V,
+    "io.netty"       % "netty-codec-http2"   % nettyV           % Runtime, // GHSA-xpw8-rcwv-8f8p
+    "org.scalameta" %% "munit"               % munitV           % Test,
+    "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV % Test
   ) ++
   // format: off
   (if (scalaVersion.value.startsWith("2"))
