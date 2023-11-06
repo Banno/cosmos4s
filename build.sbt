@@ -46,7 +46,7 @@ ThisBuild / developers := List(
 ThisBuild / tlSonatypeUseLegacyHost := true //https://oss.sonatype.org/ currently
 
 val scala3 = "3.3.1"
-ThisBuild / crossScalaVersions := Seq(scala3, "2.13.11")
+ThisBuild / crossScalaVersions := Seq(scala3, "2.13.12")
 ThisBuild / scalaVersion := scala3
 ThisBuild / githubWorkflowJavaVersions := List(JavaSpec.temurin("11"), JavaSpec.temurin("17"))
 
