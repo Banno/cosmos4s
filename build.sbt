@@ -67,15 +67,15 @@ lazy val core = project
 // General Settings
 lazy val commonSettings = Seq(
   libraryDependencies ++= Seq(
-    "com.azure"      % "azure-cosmos"        % azureCosmosV,
-    "org.typelevel" %% "cats-core"           % catsV,
-    "org.typelevel" %% "cats-effect"         % catsEffectV,
-    "co.fs2"        %% "fs2-core"            % fs2V,
-    "io.circe"      %% "circe-core"          % circeV,
-    "io.circe"      %% "circe-parser"        % circeV,
-    "io.circe"      %% "circe-jackson210"    % circeJackson210V,
-    "io.netty"       % "netty-codec-http2"   % nettyV           % Runtime, // GHSA-xpw8-rcwv-8f8p
-    "io.projectreactor.netty" % "reactor-netty-http" % reactorNettyV           % Runtime, // GHSA-xjhv-p3fv-x24r
+    "com.azure"      % "azure-cosmos"      % azureCosmosV,
+    "org.typelevel" %% "cats-core"         % catsV,
+    "org.typelevel" %% "cats-effect"       % catsEffectV,
+    "co.fs2"        %% "fs2-core"          % fs2V,
+    "io.circe"      %% "circe-core"        % circeV,
+    "io.circe"      %% "circe-parser"      % circeV,
+    "io.circe"      %% "circe-jackson210"  % circeJackson210V,
+    "io.netty"       % "netty-codec-http2" % nettyV % Runtime, // GHSA-xpw8-rcwv-8f8p
+    "io.projectreactor.netty" % "reactor-netty-http" % reactorNettyV % Runtime, // GHSA-xjhv-p3fv-x24r
     "org.scalameta" %% "munit"               % munitV           % Test,
     "org.typelevel" %% "munit-cats-effect-3" % munitCatsEffectV % Test
   ) ++
