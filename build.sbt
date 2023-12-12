@@ -9,7 +9,7 @@ val circeV = "0.14.6"
 val munitV = "0.7.29"
 val munitCatsEffectV = "1.0.7"
 val nettyV = "4.1.101.Final"
-val reactorNettyV = "1.1.13"
+val reactorNettyV = "1.1.14"
 val kindProjectorV = "0.13.2"
 
 ThisBuild / tlBaseVersion := "1.0"
